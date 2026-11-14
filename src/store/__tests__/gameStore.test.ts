@@ -65,6 +65,15 @@ describe('game store', () => {
     expect(storage.data.get(`${CORRUPT_SAVE_KEY_PREFIX}${T0}`)).toBe('{broken');
   });
 
+  it('never overwrites an earlier unreadable save kept at the same time', () => {
+    const storage = memoryStorage();
+    storage.set(`${CORRUPT_SAVE_KEY_PREFIX}${T0}`, '{older');
+    storage.set(SAVE_KEY, '{newer');
+    setup(storage);
+    expect(storage.data.get(`${CORRUPT_SAVE_KEY_PREFIX}${T0}`)).toBe('{older');
+    expect(storage.data.get(`${CORRUPT_SAVE_KEY_PREFIX}${T0}.1`)).toBe('{newer');
+  });
+
   it('shows no welcome-back when nothing finished', () => {
     const t = setup();
     t.store.getState().pause();

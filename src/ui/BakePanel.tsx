@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { content } from '../content';
 import { viewShop } from '../core';
@@ -28,7 +28,7 @@ export function BakePanel({ shopId }: { shopId: string }) {
   };
 
   return (
-    <View style={styles.panel}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.panel}>
       <View style={styles.header}>
         <Text style={styles.title}>{shop.name}</Text>
         <Text style={styles.meta}>{strings.queue(view.batches.length, view.queueSize)}</Text>
@@ -103,18 +103,15 @@ export function BakePanel({ shopId }: { shopId: string }) {
         })}
       </View>
       {full && <Text style={styles.hint}>{strings.queueFull}</Text>}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scroll: { flex: 1, backgroundColor: colors.panel, borderTopWidth: 2, borderColor: colors.panelEdge },
   panel: {
-    backgroundColor: colors.panel,
-    borderTopWidth: 2,
-    borderColor: colors.panelEdge,
     padding: 16,
     gap: 12,
-    flex: 1,
   },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
   title: { fontSize: 22, fontWeight: '700', color: colors.ink },

@@ -42,7 +42,8 @@ function indexById<T extends { id: string }>(
   items: T[],
   problems: string[],
 ): Record<string, T> {
-  const out: Record<string, T> = {};
+  // No prototype, so ids like "constructor" are never mistaken for existing entries.
+  const out: Record<string, T> = Object.create(null);
   for (const item of items) {
     if (out[item.id]) problems.push(`${file}: duplicate id "${item.id}"`);
     out[item.id] = item;
@@ -66,7 +67,7 @@ export function loadContent(raw: RawContent): Content {
   const recipes = indexById('recipes.json', recipesFile.recipes, problems);
   const shops = indexById('shops.json', shopsFile.shops, problems);
 
-  const madeBy: Record<string, string> = {};
+  const madeBy: Record<string, string> = Object.create(null);
   for (const recipe of Object.values(recipes)) {
     const where = `recipes.json: recipe "${recipe.id}"`;
     if (!shops[recipe.shop]) problems.push(`${where}: unknown shop "${recipe.shop}"`);

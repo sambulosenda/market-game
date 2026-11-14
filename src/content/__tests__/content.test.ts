@@ -74,6 +74,18 @@ describe('content validation', () => {
     ]);
   });
 
+  it('does not treat inherited object keys as existing ids', () => {
+    const bad = {
+      recipes: [...recipes.recipes, { id: 'toast', shop: 'constructor', output: 'loaf', inputs: [], durationSec: 10 }],
+    };
+    expect(problemsFor({ recipes: bad })).toContain('recipes.json: recipe "toast": unknown shop "constructor"');
+    const okGoods = { goods: [...goods.goods, { id: 'constructor', name: 'Odd' }] };
+    const okRecipes = {
+      recipes: [...recipes.recipes, { id: 'constructor', shop: 'bakery', output: 'constructor', inputs: [], durationSec: 10 }],
+    };
+    expect(problemsFor({ goods: okGoods, recipes: okRecipes })).toEqual([]);
+  });
+
   it('throws a readable message listing every problem', () => {
     expect(() => loadContent({ ...raw, street: { lotCount: 0 } })).toThrow(
       /Content config is invalid:\n {2}- street\.json: lotCount: /,

@@ -110,8 +110,10 @@ export function Street() {
 
   const bakery = views.bakery;
   const bakeryLot = content.shops.bakery.lot;
+  // Plain numbers only inside worklets: they run on the UI thread and cannot call ordinary JS functions.
+  const bakeryCentreX = lotX(bakeryLot) + LOT_WIDTH / 2;
   const bakeryTransform = useDerivedValue(() => [
-    { translateX: lotX(bakeryLot) + LOT_WIDTH / 2 },
+    { translateX: bakeryCentreX },
     { translateY: GROUND_Y },
     { scale: bounce.value },
     { translateX: -LOT_WIDTH / 2 },
@@ -174,7 +176,8 @@ function ShopIndicator({ view, clock }: { view: ShopView; clock: number }) {
   // Runs on the UI thread each frame, so the ring fills smoothly at 60 fps
   // without re-rendering React. Paused when nothing is baking.
   const frame = useFrameCallback(() => {
-    wallClock.value = Date.now();
+    // Never step backwards, even if the device clock does mid-bake.
+    wallClock.value = Math.max(wallClock.value, Date.now());
   }, false);
   useEffect(() => {
     frame.setActive(!!active);

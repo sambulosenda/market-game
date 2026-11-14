@@ -56,7 +56,9 @@ export function loadGame(storage: KeyValueStorage, content: Content, now: number
   try {
     return deserializeSave(raw, content);
   } catch (error) {
-    storage.set(`${CORRUPT_SAVE_KEY_PREFIX}${now}`, raw);
+    let key = `${CORRUPT_SAVE_KEY_PREFIX}${now}`;
+    for (let n = 1; storage.getString(key) !== undefined; n++) key = `${CORRUPT_SAVE_KEY_PREFIX}${now}.${n}`;
+    storage.set(key, raw);
     onError?.(error);
     return createInitialState(content, now);
   }
