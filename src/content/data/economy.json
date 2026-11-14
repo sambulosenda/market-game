@@ -73,5 +73,125 @@
         "max": 5
       }
     ]
+  },
+  "daily": {
+    "goals": [
+      {
+        "kind": "fill_orders",
+        "targets": [
+          {
+            "minLevel": 1,
+            "target": 3
+          },
+          {
+            "minLevel": 4,
+            "target": 5
+          },
+          {
+            "minLevel": 10,
+            "target": 8
+          },
+          {
+            "minLevel": 18,
+            "target": 12
+          }
+        ]
+      },
+      {
+        "kind": "collect_goods",
+        "targets": [
+          {
+            "minLevel": 1,
+            "target": 8
+          },
+          {
+            "minLevel": 4,
+            "target": 15
+          },
+          {
+            "minLevel": 10,
+            "target": 25
+          },
+          {
+            "minLevel": 18,
+            "target": 40
+          }
+        ]
+      },
+      {
+        "kind": "earn_coins",
+        "targets": [
+          {
+            "minLevel": 1,
+            "target": 60
+          },
+          {
+            "minLevel": 4,
+            "target": 300
+          },
+          {
+            "minLevel": 10,
+            "target": 1500
+          },
+          {
+            "minLevel": 18,
+            "target": 6000
+          }
+        ]
+      },
+      {
+        "kind": "start_batches",
+        "targets": [
+          {
+            "minLevel": 1,
+            "target": 8
+          },
+          {
+            "minLevel": 4,
+            "target": 15
+          },
+          {
+            "minLevel": 10,
+            "target": 25
+          },
+          {
+            "minLevel": 18,
+            "target": 40
+          }
+        ]
+      }
+    ],
+    "goalCoinsPerLevel": 15,
+    "allGoalsGems": 2,
+    "calendar": [
+      {
+        "coinsPerLevel": 10,
+        "gems": 0
+      },
+      {
+        "coinsPerLevel": 15,
+        "gems": 0
+      },
+      {
+        "coinsPerLevel": 0,
+        "gems": 2
+      },
+      {
+        "coinsPerLevel": 25,
+        "gems": 0
+      },
+      {
+        "coinsPerLevel": 30,
+        "gems": 0
+      },
+      {
+        "coinsPerLevel": 0,
+        "gems": 3
+      },
+      {
+        "coinsPerLevel": 50,
+        "gems": 5
+      }
+    ]
   }
 }

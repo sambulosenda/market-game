@@ -52,7 +52,22 @@ describe('save', () => {
       { from: 1, migrate: (s) => ({ ...s, trail: [...(s.trail as string[]), 'a'] }) },
       { from: 2, migrate: (s) => ({ ...s, trail: [...(s.trail as string[]), 'b'] }) },
     ];
-    expect(runMigrations({ version: 1, trail: [] }, migrations, 3, testContent)).toEqual({ version: 3, trail: ['a', 'b'] });
+    expect(runMigrations({ version: 1, trail: [] }, migrations, 3, testContent)).toEqual({
+      version: 3,
+      trail: ['a', 'b'],
+    });
+  });
+
+  it('brings a version 2 save (milestone 2) forward with no daily goals yet', () => {
+    const { daily, ...rest } = createInitialState(testContent, T0);
+    expect(daily.day).toBe(-1);
+    const state = deserializeSave(
+      JSON.stringify({ ...rest, version: 2, wallet: { coins: 345, gems: 9, log: [] } }),
+      testContent,
+    );
+    expect(state.version).toBe(SAVE_VERSION);
+    expect(state.wallet.coins).toBe(345);
+    expect(state.daily).toEqual({ day: -1, goals: [], bonusClaimed: false, calendar: { claimed: 0, lastDay: null } });
   });
 
   it('brings a version 1 save (the core loop build) forward without losing it', () => {
@@ -65,7 +80,7 @@ describe('save', () => {
       shops: { bakery: { level: 1, queue: [{ id: 1, recipe: 'loaf', startAt: T0, durationMs: 60000 }] } },
     };
     const state = deserializeSave(JSON.stringify(v1), testContent);
-    expect(state.version).toBe(2);
+    expect(state.version).toBe(SAVE_VERSION);
     expect(state.pantry).toEqual({ loaf: 3 });
     expect(state.shops.bakery.queue).toHaveLength(1);
     expect(state.wallet).toEqual({ coins: 20, gems: 5, log: [] });
@@ -117,7 +132,10 @@ describe('save', () => {
       pantryLevel: 7,
       shops: { bakery: { level: 5, queue: [] } },
       landmarks: { fountain: { stage: 8 }, gone: { stage: 1 } },
-      orders: { nextId: 9, slots: [{ order: { id: 8, items: [{ good: 'gone', qty: 1 }], coins: 5, xp: 1 } }, s.orders.slots[1]] },
+      orders: {
+        nextId: 9,
+        slots: [{ order: { id: 8, items: [{ good: 'gone', qty: 1 }], coins: 5, xp: 1 } }, s.orders.slots[1]],
+      },
     });
     const state = deserializeSave(raw, testContent);
     expect(state.level).toBe(2);

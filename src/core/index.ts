@@ -1,5 +1,6 @@
 export * from './bonuses';
 export * from './clock';
+export * from './daily';
 export * from './landmarks';
 export * from './levels';
 export * from './offline';

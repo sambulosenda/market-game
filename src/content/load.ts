@@ -28,12 +28,7 @@ export type RawContent = {
   street: unknown;
 };
 
-function parseFile<T>(
-  file: string,
-  schema: z.ZodType<T>,
-  raw: unknown,
-  problems: string[],
-): T | undefined {
+function parseFile<T>(file: string, schema: z.ZodType<T>, raw: unknown, problems: string[]): T | undefined {
   const result = schema.safeParse(raw);
   if (result.success) return result.data;
   for (const issue of result.error.issues) {
@@ -43,11 +38,7 @@ function parseFile<T>(
   return undefined;
 }
 
-function indexById<T extends { id: string }>(
-  file: string,
-  items: T[],
-  problems: string[],
-): Record<string, T> {
+function indexById<T extends { id: string }>(file: string, items: T[], problems: string[]): Record<string, T> {
   // No prototype, so ids like "constructor" are never mistaken for existing entries.
   const out: Record<string, T> = Object.create(null);
   for (const item of items) {
@@ -146,13 +137,14 @@ export function loadContent(raw: RawContent): Content {
     const where = `levels.json: level ${n}`;
     if (i === 0 && level.xp !== 0) problems.push(`${where}: level 1 must need 0 XP`);
     if (i > 0 && level.xp <= levels[i - 1].xp) problems.push(`${where}: xp must be more than level ${n - 1}'s`);
-    if (i > 0 && level.orderSlots < levels[i - 1].orderSlots)
-      problems.push(`${where}: orderSlots must not go down`);
+    if (i > 0 && level.orderSlots < levels[i - 1].orderSlots) problems.push(`${where}: orderSlots must not go down`);
     for (const kind of ['shops', 'recipes', 'landmarks'] as const) {
       for (const thing of level.unlocks[kind]) {
         if (!known[kind][thing]) problems.push(`${where}: unlocks unknown ${kind.slice(0, -1)} "${thing}"`);
         else if (unlockLevel[kind][thing])
-          problems.push(`${where}: ${kind.slice(0, -1)} "${thing}" is already unlocked at level ${unlockLevel[kind][thing]}`);
+          problems.push(
+            `${where}: ${kind.slice(0, -1)} "${thing}" is already unlocked at level ${unlockLevel[kind][thing]}`,
+          );
         else unlockLevel[kind][thing] = n;
       }
     }
@@ -170,7 +162,9 @@ export function loadContent(raw: RawContent): Content {
     const own = unlockLevel.recipes[recipe.id];
     const shop = unlockLevel.shops[recipe.shop];
     if (own && shop && own < shop)
-      problems.push(`levels.json: recipe "${recipe.id}" unlocks at level ${own}, before its shop "${recipe.shop}" (level ${shop})`);
+      problems.push(
+        `levels.json: recipe "${recipe.id}" unlocks at level ${own}, before its shop "${recipe.shop}" (level ${shop})`,
+      );
   }
 
   // Economy tables.
@@ -185,6 +179,17 @@ export function loadContent(raw: RawContent): Content {
     rows.forEach((row, i) => {
       if (i > 0 && row.minLevel <= rows[i - 1].minLevel)
         problems.push(`economy.json: orders.${table}: minLevel must rise from row to row`);
+    });
+  }
+  const kindsSeen = new Set<string>();
+  for (const goal of economy.daily.goals) {
+    if (kindsSeen.has(goal.kind)) problems.push(`economy.json: daily.goals: "${goal.kind}" is listed twice`);
+    kindsSeen.add(goal.kind);
+    if (goal.targets[0].minLevel !== 1)
+      problems.push(`economy.json: daily.goals: "${goal.kind}": the first row must have minLevel 1`);
+    goal.targets.forEach((row, i) => {
+      if (i > 0 && row.minLevel <= goal.targets[i - 1].minLevel)
+        problems.push(`economy.json: daily.goals: "${goal.kind}": minLevel must rise from row to row`);
     });
   }
   for (const row of economy.orders.kinds) {

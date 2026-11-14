@@ -6,7 +6,7 @@
  */
 import type { GoodQty, Level } from '../content/schema';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 /** One batch in a shop's queue. Timers are timestamps, never tickers. */
 export type Batch = {
@@ -35,7 +35,9 @@ export type TransactionReason =
   | 'buy_shop'
   | 'upgrade_shop'
   | 'upgrade_pantry'
-  | 'restore_landmark';
+  | 'restore_landmark'
+  | 'daily_goal'
+  | 'daily_calendar';
 
 /** One change to the wallet. `amount` is negative for spending. */
 export type Transaction = {
@@ -65,6 +67,28 @@ export type Order = {
 /** A slot on the order board holds an order, or is empty until `refillAt`. */
 export type OrderSlot = { order: Order } | { refillAt: number };
 
+export type DailyGoalKind = 'fill_orders' | 'collect_goods' | 'earn_coins' | 'start_batches';
+
+export type DailyGoal = {
+  kind: DailyGoalKind;
+  target: number;
+  /** Never more than `target`. */
+  progress: number;
+  /** Coins paid when claimed, fixed when the goal is set. */
+  coins: number;
+  claimed: boolean;
+};
+
+export type Daily = {
+  /** The local day the goals are for (see `localDay`), or -1 before the first day is set up. */
+  day: number;
+  goals: DailyGoal[];
+  /** Whether the gem bonus for claiming every goal has been paid today. */
+  bonusClaimed: boolean;
+  /** The login calendar: gifts taken so far, and the local day of the last one. */
+  calendar: { claimed: number; lastDay: number | null };
+};
+
 export type GameState = {
   version: typeof SAVE_VERSION;
   createdAt: number;
@@ -90,6 +114,7 @@ export type GameState = {
   orders: { slots: OrderSlot[]; nextId: number };
   /** Restoration stages finished, by landmark id. Missing means none. */
   landmarks: Record<string, { stage: number }>;
+  daily: Daily;
   /** State of the random number generator, so order generation can be replayed. */
   rng: number;
 };
@@ -103,7 +128,9 @@ export type GameEvent =
   | { type: 'shopBought'; shop: string }
   | { type: 'shopUpgraded'; shop: string; level: number }
   | { type: 'pantryUpgraded'; level: number; capacity: number }
-  | { type: 'landmarkStageRestored'; landmark: string; stage: number; complete: boolean };
+  | { type: 'landmarkStageRestored'; landmark: string; stage: number; complete: boolean }
+  | { type: 'dailyGoalClaimed'; kind: DailyGoalKind; coins: number; gems: number }
+  | { type: 'calendarGiftClaimed'; day: number; coins: number; gems: number };
 
 export type FailReason =
   | 'unknown_shop'
@@ -122,8 +149,9 @@ export type FailReason =
   | 'unknown_order'
   | 'missing_goods'
   | 'unknown_landmark'
-  | 'already_restored';
+  | 'already_restored'
+  | 'unknown_goal'
+  | 'goal_not_done'
+  | 'already_claimed';
 
-export type ActionResult =
-  | { ok: true; state: GameState; events: GameEvent[] }
-  | { ok: false; reason: FailReason };
+export type ActionResult = { ok: true; state: GameState; events: GameEvent[] } | { ok: false; reason: FailReason };

@@ -1,6 +1,7 @@
 import type { Content, Recipe } from '../content/schema';
 import { extraOrderSlots, orderCoinMultiplier } from './bonuses';
 import { effectiveNow } from './clock';
+import { recordDaily } from './daily';
 import { addXp } from './levels';
 import { nextRandom, pickWeighted } from './rng';
 import type { ActionResult, GameEvent, GameState, Order, OrderSlot } from './types';
@@ -80,7 +81,10 @@ function generateOrder(state: GameState, content: Content): { order: Order; rng:
   const max = rowFor(maxQty, state.level).max;
   const items: Order['items'] = [];
   for (let k = 0; k < kindCount; k++) {
-    const i = pickWeighted(pool.map((g) => content.goods[g].orderWeight), roll());
+    const i = pickWeighted(
+      pool.map((g) => content.goods[g].orderWeight),
+      roll(),
+    );
     const [good] = pool.splice(i, 1);
     const most = Math.min(max, content.goods[good].maxOrderQty ?? max);
     items.push({ good, qty: 1 + Math.floor(roll() * most) });
@@ -148,7 +152,8 @@ export function fillOrder(state: GameState, content: Content, orderId: number, n
     wallet: earn(state.wallet, 'coins', coins, 'order', t),
     orders: { ...state.orders, slots },
   };
-  const levelled = addXp(paid, content, order.xp, t);
+  const counted = recordDaily(recordDaily(paid, 'fill_orders', 1), 'earn_coins', coins);
+  const levelled = addXp(counted, content, order.xp, t);
   const events: GameEvent[] = [{ type: 'orderFilled', orderId, coins, xp: order.xp }, ...levelled.events];
   // After the XP, so the new order (and any new slot) reflects a level-up.
   return { ok: true, state: refreshOrders(levelled.state, content, t), events };

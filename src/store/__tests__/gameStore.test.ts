@@ -27,6 +27,52 @@ function setup(storage = memoryStorage()) {
   };
 }
 
+describe('daily goals in the store', () => {
+  function setupAt(offsetMin: number) {
+    let clock = T0;
+    const storage = memoryStorage();
+    const store = createGameStore({
+      storage,
+      content: testContent,
+      now: () => clock,
+      timezoneOffsetMin: () => offsetMin,
+    });
+    return { store, storage, advance: (ms: number) => void (clock += ms) };
+  }
+
+  it('sets three goals at launch and new ones after local midnight', () => {
+    const t = setupAt(0);
+    const first = t.store.getState().game.daily;
+    expect(first.goals).toHaveLength(3);
+    // T0 is 09:00, so 14 hours later is still today.
+    t.advance(14 * HOUR);
+    t.store.getState().refreshOrders();
+    expect(t.store.getState().game.daily).toBe(first);
+    t.advance(HOUR);
+    t.store.getState().refreshOrders();
+    expect(t.store.getState().game.daily.day).toBe(first.day + 1);
+  });
+
+  it('claims the calendar gift once a day and saves it', () => {
+    const t = setupAt(-60);
+    const coins = t.store.getState().game.wallet.coins;
+    expect(t.store.getState().claimCalendarGift()).toBeNull();
+    expect(t.store.getState().game.wallet.coins).toBe(coins + 5);
+    expect(t.store.getState().claimCalendarGift()).toBe('already_claimed');
+    expect(JSON.parse(t.storage.data.get(SAVE_KEY)!).daily.calendar.claimed).toBe(1);
+    expect(t.store.getState().claimDailyGoal(0)).toBe('goal_not_done');
+  });
+
+  it('starts a new game with goals after deleting all data', () => {
+    const t = setupAt(0);
+    t.store.getState().claimCalendarGift();
+    t.store.getState().deleteAllData();
+    const { daily } = t.store.getState().game;
+    expect(daily.goals).toHaveLength(3);
+    expect(daily.calendar).toEqual({ claimed: 0, lastDay: null });
+  });
+});
+
 describe('game store', () => {
   it('bake, close the app, come back, collect', () => {
     const t = setup();
@@ -123,7 +169,12 @@ describe('game store', () => {
     if (!('order' in first)) throw new Error('expected an order');
     t.store.getState().skipOrder(first.order.id);
     t.advance(HOUR);
-    expect(t.relaunch().getState().game.orders.slots.every((slot) => 'order' in slot)).toBe(true);
+    expect(
+      t
+        .relaunch()
+        .getState()
+        .game.orders.slots.every((slot) => 'order' in slot),
+    ).toBe(true);
   });
 
   it('shows no welcome-back when nothing finished', () => {
@@ -167,7 +218,11 @@ describe('settings', () => {
     store.getState().set('reduceMotion', true);
     expect(store.getState().haptics).toBe(false);
     expect(createSettingsStore(storage).getState()).toMatchObject({ haptics: false, reduceMotion: true, sound: true });
-    expect(JSON.parse(storage.data.get(SETTINGS_KEY)!)).toEqual({ ...DEFAULT_SETTINGS, haptics: false, reduceMotion: true });
+    expect(JSON.parse(storage.data.get(SETTINGS_KEY)!)).toEqual({
+      ...DEFAULT_SETTINGS,
+      haptics: false,
+      reduceMotion: true,
+    });
   });
 
   it('fall back to defaults when unreadable, and fill in settings added later', () => {

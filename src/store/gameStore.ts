@@ -4,6 +4,8 @@ import type { Content } from '../content/schema';
 import {
   type ActionResult,
   buyShop,
+  claimCalendarGift,
+  claimDailyGoal,
   collect,
   createInitialState,
   deserializeSave,
@@ -12,6 +14,7 @@ import {
   type GameEvent,
   type GameState,
   pause,
+  refreshDaily,
   refreshOrders,
   restoreLandmark,
   resume,
@@ -47,7 +50,11 @@ export type GameStore = {
   upgradePantry(): FailReason | null;
   /** Restores the landmark's next stage. */
   restoreLandmark(landmarkId: string): FailReason | null;
-  /** Refills order slots whose wait is over. Cheap, so screens call it as time passes. */
+  /** Takes the coins for one of today's goals, by its position in the list. */
+  claimDailyGoal(index: number): FailReason | null;
+  /** Takes today's gift from the login calendar. */
+  claimCalendarGift(): FailReason | null;
+  /** Refills order slots whose wait is over and sets new goals after midnight. Cheap, so screens call it as time passes. */
   refreshOrders(): void;
   /** Call when the app comes to the foreground (and once at launch). */
   resume(): void;
@@ -62,6 +69,8 @@ export type GameStoreOptions = {
   storage: KeyValueStorage;
   content: Content;
   now?: () => number;
+  /** Minutes to add to local time to get UTC at a moment, as `Date.getTimezoneOffset()` gives. */
+  timezoneOffsetMin?: (at: number) => number;
   onEvents?: (events: GameEvent[]) => void;
   onSaveError?: (error: unknown) => void;
 };
@@ -70,7 +79,12 @@ export type GameStoreOptions = {
  * Loads the save, or starts a new game. A save that cannot be read is kept
  * under a separate key rather than overwritten, so it can be recovered.
  */
-export function loadGame(storage: KeyValueStorage, content: Content, now: number, onError?: (e: unknown) => void): GameState {
+export function loadGame(
+  storage: KeyValueStorage,
+  content: Content,
+  now: number,
+  onError?: (e: unknown) => void,
+): GameState {
   const raw = storage.getString(SAVE_KEY);
   if (raw === undefined) return createInitialState(content, now);
   try {
@@ -88,7 +102,18 @@ export function loadGame(storage: KeyValueStorage, content: Content, now: number
  * The game store: a thin shell around the pure core. Every change is saved
  * straight away, so force-quitting at any point loses nothing.
  */
-export function createGameStore({ storage, content, now = Date.now, onEvents, onSaveError }: GameStoreOptions) {
+export function createGameStore({
+  storage,
+  content,
+  now = Date.now,
+  timezoneOffsetMin = (at) => new Date(at).getTimezoneOffset(),
+  onEvents,
+  onSaveError,
+}: GameStoreOptions) {
+  /** Everything that happens just because time passed: new orders, and new goals after midnight. */
+  const tick = (game: GameState, t: number) =>
+    refreshDaily(refreshOrders(game, content, t), content, t, timezoneOffsetMin(t));
+
   const save = (game: GameState) => {
     try {
       storage.set(SAVE_KEY, serializeSave(game));
@@ -107,7 +132,7 @@ export function createGameStore({ storage, content, now = Date.now, onEvents, on
     };
 
     const start = now();
-    const game = refreshOrders(loadGame(storage, content, start, onSaveError), content, start);
+    const game = tick(loadGame(storage, content, start, onSaveError), start);
     save(game);
 
     return {
@@ -121,8 +146,13 @@ export function createGameStore({ storage, content, now = Date.now, onEvents, on
       upgradeShop: (shopId) => apply(upgradeShop(get().game, content, shopId, now())),
       upgradePantry: () => apply(upgradePantry(get().game, content, now())),
       restoreLandmark: (landmarkId) => apply(restoreLandmark(get().game, content, landmarkId, now())),
+      claimDailyGoal: (index) => apply(claimDailyGoal(get().game, content, index, now())),
+      claimCalendarGift: () => {
+        const t = now();
+        return apply(claimCalendarGift(get().game, content, t, timezoneOffsetMin(t)));
+      },
       refreshOrders: () => {
-        const state = refreshOrders(get().game, content, now());
+        const state = tick(get().game, now());
         if (state === get().game) return;
         save(state);
         set({ game: state });
@@ -131,7 +161,7 @@ export function createGameStore({ storage, content, now = Date.now, onEvents, on
         const t = now();
         const resumed = resume(get().game, content, t);
         const summary = resumed.summary;
-        const state = refreshOrders(resumed.state, content, t);
+        const state = tick(resumed.state, t);
         save(state);
         const hasNews = Object.keys(summary.finished).length > 0;
         set({ game: state, welcomeBack: hasNews ? summary : get().welcomeBack });
@@ -144,7 +174,7 @@ export function createGameStore({ storage, content, now = Date.now, onEvents, on
       dismissWelcomeBack: () => set({ welcomeBack: null }),
       deleteAllData: () => {
         storage.clearAll();
-        const fresh = createInitialState(content, now());
+        const fresh = tick(createInitialState(content, now()), now());
         save(fresh);
         set({ game: fresh, welcomeBack: null });
       },

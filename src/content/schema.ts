@@ -7,9 +7,7 @@ import { z } from 'zod';
  * exist, two things on the same lot, and so on).
  */
 
-const id = z
-  .string()
-  .regex(/^[a-z][a-z0-9_]*$/, 'ids are lower_snake_case, starting with a letter');
+const id = z.string().regex(/^[a-z][a-z0-9_]*$/, 'ids are lower_snake_case, starting with a letter');
 
 /** The longest timer allowed anywhere in v1 (PRD pacing rules): 4 hours. */
 export const MAX_DURATION_SEC = 4 * 60 * 60;
@@ -79,7 +77,9 @@ export const landmarkSchema = z.strictObject({
   name: z.string().min(1),
   lot: z.number().int().min(0),
   /** What each restoration stage costs, in order. */
-  stages: z.array(z.strictObject({ coins: z.number().int().nonnegative(), goods: z.array(goodQty) })).length(LANDMARK_STAGES),
+  stages: z
+    .array(z.strictObject({ coins: z.number().int().nonnegative(), goods: z.array(goodQty) }))
+    .length(LANDMARK_STAGES),
   /** Applies for good once the last stage is restored. */
   bonus: landmarkBonusSchema,
 });
@@ -95,14 +95,20 @@ export const levelSchema = z.strictObject({
   unlocks: z.strictObject({ shops: z.array(id), recipes: z.array(id), landmarks: z.array(id) }),
 });
 
-const byLevel = <T extends z.ZodRawShape>(shape: T) => z.array(z.strictObject({ minLevel: z.number().int().min(1), ...shape })).min(1);
+const byLevel = <T extends z.ZodRawShape>(shape: T) =>
+  z.array(z.strictObject({ minLevel: z.number().int().min(1), ...shape })).min(1);
+
+/** What a daily goal can count. */
+export const DAILY_GOAL_KINDS = ['fill_orders', 'collect_goods', 'earn_coins', 'start_batches'] as const;
 
 export const economySchema = z.strictObject({
   startingCoins: z.number().int().nonnegative(),
   startingGems: z.number().int().nonnegative(),
   pantry: z.strictObject({
     /** Capacity at each pantry level, and the coins to reach it. Level 1 is free. */
-    levels: z.array(z.strictObject({ capacity: z.number().int().positive(), cost: z.number().int().nonnegative() })).min(1),
+    levels: z
+      .array(z.strictObject({ capacity: z.number().int().positive(), cost: z.number().int().nonnegative() }))
+      .min(1),
   }),
   orders: z.strictObject({
     /** How long a skipped order's slot stays empty. */
@@ -115,6 +121,25 @@ export const economySchema = z.strictObject({
     kinds: byLevel({ weights: z.array(z.number().nonnegative()).length(MAX_ORDER_KINDS) }),
     /** The most of one good an order asks for, from a player level up. */
     maxQty: byLevel({ max: z.number().int().positive() }),
+  }),
+  daily: z.strictObject({
+    /** The goals a day's three are drawn from, each with its target from a player level up. */
+    goals: z
+      .array(
+        z.strictObject({
+          kind: z.enum(DAILY_GOAL_KINDS),
+          targets: byLevel({ target: z.number().int().positive() }),
+        }),
+      )
+      .min(3),
+    /** Coins for claiming one goal = this times the player's level. */
+    goalCoinsPerLevel: z.number().int().nonnegative(),
+    /** Gems for claiming all of a day's goals. */
+    allGoalsGems: z.number().int().nonnegative(),
+    /** The login calendar's gifts, in order. Coins = `coinsPerLevel` times the player's level. */
+    calendar: z
+      .array(z.strictObject({ coinsPerLevel: z.number().int().nonnegative(), gems: z.number().int().nonnegative() }))
+      .length(7),
   }),
 });
 

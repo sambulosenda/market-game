@@ -1,4 +1,5 @@
 import type { Content } from '../content/schema';
+import { NO_DAILY } from './daily';
 import { refreshOrders } from './orders';
 import { type GameState, type OrderSlot, SAVE_VERSION, type ShopState } from './types';
 
@@ -24,6 +25,7 @@ export function createInitialState(content: Content, now: number, seed: number =
     level: 1,
     orders: { slots: [], nextId: 1 },
     landmarks: {},
+    daily: NO_DAILY,
     rng: seed >>> 0,
   };
   return refreshOrders(state, content, now);
@@ -60,16 +62,21 @@ export function reconcile(state: GameState, content: Content): GameState {
     if (config) landmarks[id] = { stage: clamp(landmark.stage, 0, config.stages.length) };
   }
   // An order for a good that no longer exists becomes an empty slot, refilled at once.
-  const slots = state.orders.slots.map((slot): OrderSlot =>
-    'order' in slot && !slot.order.items.every((i) => content.goods[i.good]) ? { refillAt: state.clock } : slot,
+  const slots = state.orders.slots.map(
+    (slot): OrderSlot =>
+      'order' in slot && !slot.order.items.every((i) => content.goods[i.good]) ? { refillAt: state.clock } : slot,
   );
   // The level follows from XP, so a changed XP table moves it.
   let level = 1;
   while (level < content.levels.length && state.xp >= content.levels[level].xp) level += 1;
+  // A goal of a kind the config no longer has is dropped.
+  const kinds = new Set(content.economy.daily.goals.map((g) => g.kind));
+  const daily = { ...state.daily, goals: state.daily.goals.filter((g) => kinds.has(g.kind)) };
   return {
     ...state,
     shops,
     pantry,
+    daily,
     pantryLevel: clamp(state.pantryLevel, 1, content.economy.pantry.levels.length),
     landmarks,
     level,

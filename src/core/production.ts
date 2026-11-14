@@ -1,6 +1,7 @@
 import type { Content, ShopLevel } from '../content/schema';
 import { batchSpeedMultiplier } from './bonuses';
 import { effectiveNow } from './clock';
+import { recordDaily } from './daily';
 import { recipeAvailable } from './orders';
 import { pantrySpace } from './pantry';
 import type { ActionResult, Batch, GameEvent, GameState, ShopState } from './types';
@@ -72,10 +73,8 @@ export function startBatch(
   };
   return {
     ok: true,
-    state: next,
-    events: [
-      { type: 'batchStarted', shop: shopId, recipe: recipeId, batchId: batch.id, endsAt: batchEndsAt(batch) },
-    ],
+    state: recordDaily(next, 'start_batches', 1),
+    events: [{ type: 'batchStarted', shop: shopId, recipe: recipeId, batchId: batch.id, endsAt: batchEndsAt(batch) }],
   };
 }
 
@@ -83,12 +82,7 @@ export function startBatch(
  * Moves finished batches into the pantry, oldest first, as many as fit.
  * Batches that do not fit stay in the queue, holding their slots.
  */
-export function collect(
-  state: GameState,
-  content: Content,
-  shopId: string,
-  now: number,
-): ActionResult {
+export function collect(state: GameState, content: Content, shopId: string, now: number): ActionResult {
   if (!content.shops[shopId]) return { ok: false, reason: 'unknown_shop' };
   const shop = state.shops[shopId];
   if (!shop) return { ok: false, reason: 'shop_not_owned' };
@@ -114,7 +108,11 @@ export function collect(
   const queue = shop.queue.filter((b) => !taken.includes(b));
   return {
     ok: true,
-    state: { ...state, clock: t, pantry, shops: { ...state.shops, [shopId]: { ...shop, queue } } },
+    state: recordDaily(
+      { ...state, clock: t, pantry, shops: { ...state.shops, [shopId]: { ...shop, queue } } },
+      'collect_goods',
+      taken.length,
+    ),
     events,
   };
 }
