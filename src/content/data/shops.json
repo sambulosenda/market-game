@@ -17,7 +17,7 @@
           "durationMultiplier": 0.9
         },
         {
-          "cost": 1200,
+          "cost": 3000,
           "queueSize": 4,
           "durationMultiplier": 0.8
         }
@@ -40,7 +40,76 @@
           "durationMultiplier": 0.9
         },
         {
-          "cost": 2400,
+          "cost": 5000,
+          "queueSize": 4,
+          "durationMultiplier": 0.8
+        }
+      ]
+    },
+    {
+      "id": "flowers",
+      "name": "Flower stall",
+      "lot": 3,
+      "startsOwned": false,
+      "levels": [
+        {
+          "cost": 300,
+          "queueSize": 2,
+          "durationMultiplier": 1
+        },
+        {
+          "cost": 2500,
+          "queueSize": 3,
+          "durationMultiplier": 0.9
+        },
+        {
+          "cost": 10000,
+          "queueSize": 4,
+          "durationMultiplier": 0.8
+        }
+      ]
+    },
+    {
+      "id": "preserves",
+      "name": "Preserves shop",
+      "lot": 4,
+      "startsOwned": false,
+      "levels": [
+        {
+          "cost": 1500,
+          "queueSize": 2,
+          "durationMultiplier": 1
+        },
+        {
+          "cost": 6000,
+          "queueSize": 3,
+          "durationMultiplier": 0.9
+        },
+        {
+          "cost": 20000,
+          "queueSize": 4,
+          "durationMultiplier": 0.8
+        }
+      ]
+    },
+    {
+      "id": "cafe",
+      "name": "Café",
+      "lot": 6,
+      "startsOwned": false,
+      "levels": [
+        {
+          "cost": 4000,
+          "queueSize": 2,
+          "durationMultiplier": 1
+        },
+        {
+          "cost": 20000,
+          "queueSize": 3,
+          "durationMultiplier": 0.9
+        },
+        {
+          "cost": 60000,
           "queueSize": 4,
           "durationMultiplier": 0.8
         }

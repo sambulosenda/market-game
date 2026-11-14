@@ -6,37 +6,37 @@
       "lot": 2,
       "stages": [
         {
-          "coins": 300,
+          "coins": 80,
           "goods": [
             {
               "good": "loaf",
-              "qty": 6
+              "qty": 4
             }
           ]
         },
         {
-          "coins": 600,
+          "coins": 160,
           "goods": [
             {
               "good": "milk",
-              "qty": 6
+              "qty": 4
             },
             {
               "good": "scones",
-              "qty": 4
+              "qty": 3
             }
           ]
         },
         {
-          "coins": 1000,
+          "coins": 300,
           "goods": [
             {
               "good": "butter",
-              "qty": 4
+              "qty": 3
             },
             {
               "good": "shortbread",
-              "qty": 6
+              "qty": 4
             }
           ]
         }
@@ -44,6 +44,106 @@
       "bonus": {
         "type": "order_coins",
         "percent": 10
+      }
+    },
+    {
+      "id": "clocktower",
+      "name": "Clock tower",
+      "lot": 5,
+      "stages": [
+        {
+          "coins": 1500,
+          "goods": [
+            {
+              "good": "cheese",
+              "qty": 6
+            },
+            {
+              "good": "tulips",
+              "qty": 4
+            }
+          ]
+        },
+        {
+          "coins": 3000,
+          "goods": [
+            {
+              "good": "strawberry_jam",
+              "qty": 4
+            },
+            {
+              "good": "posy",
+              "qty": 3
+            }
+          ]
+        },
+        {
+          "coins": 5000,
+          "goods": [
+            {
+              "good": "honey",
+              "qty": 3
+            },
+            {
+              "good": "bouquet",
+              "qty": 3
+            }
+          ]
+        }
+      ],
+      "bonus": {
+        "type": "batch_speed",
+        "percent": 10
+      }
+    },
+    {
+      "id": "bandstand",
+      "name": "Bandstand",
+      "lot": 7,
+      "stages": [
+        {
+          "coins": 8000,
+          "goods": [
+            {
+              "good": "coffee",
+              "qty": 4
+            },
+            {
+              "good": "jam_tart",
+              "qty": 4
+            }
+          ]
+        },
+        {
+          "coins": 12000,
+          "goods": [
+            {
+              "good": "latte",
+              "qty": 3
+            },
+            {
+              "good": "fudge",
+              "qty": 3
+            }
+          ]
+        },
+        {
+          "coins": 20000,
+          "goods": [
+            {
+              "good": "cream_tea",
+              "qty": 2
+            },
+            {
+              "good": "celebration_cake",
+              "qty": 2
+            }
+          ]
+        }
+      ],
+      "bonus": {
+        "type": "order_slots",
+        "slots": 1
       }
     }
   ]

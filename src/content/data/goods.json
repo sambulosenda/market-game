@@ -9,20 +9,46 @@
     {
       "id": "bread_rolls",
       "name": "Bread rolls",
-      "value": 9,
+      "value": 8,
       "xp": 3
     },
     {
       "id": "scones",
       "name": "Scones",
-      "value": 16,
+      "value": 14,
       "xp": 5
     },
     {
       "id": "shortbread",
       "name": "Shortbread",
-      "value": 22,
-      "xp": 7
+      "value": 18,
+      "xp": 6
+    },
+    {
+      "id": "croissant",
+      "name": "Croissant",
+      "value": 58,
+      "xp": 19
+    },
+    {
+      "id": "cheese_twist",
+      "name": "Cheese twist",
+      "value": 71,
+      "xp": 23
+    },
+    {
+      "id": "jam_tart",
+      "name": "Jam tart",
+      "value": 180,
+      "xp": 59,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "celebration_cake",
+      "name": "Celebration cake",
+      "value": 369,
+      "xp": 122,
+      "maxOrderQty": 1
     },
     {
       "id": "milk",
@@ -34,37 +60,214 @@
       "id": "cream",
       "name": "Cream",
       "value": 14,
-      "xp": 4
+      "xp": 5
     },
     {
       "id": "butter",
       "name": "Butter",
-      "value": 34,
-      "xp": 10
+      "value": 35,
+      "xp": 12
     },
     {
       "id": "cheese",
       "name": "Cheese",
-      "value": 40,
-      "xp": 12
+      "value": 44,
+      "xp": 15
     },
     {
       "id": "yoghurt",
       "name": "Yoghurt",
-      "value": 30,
+      "value": 28,
       "xp": 9
     },
     {
-      "id": "croissant",
-      "name": "Croissant",
-      "value": 70,
-      "xp": 20
+      "id": "herb_cheese",
+      "name": "Herb cheese",
+      "value": 204,
+      "xp": 67,
+      "maxOrderQty": 2
     },
     {
-      "id": "cheese_twist",
-      "name": "Cheese twist",
-      "value": 78,
-      "xp": 22
+      "id": "honey_yoghurt",
+      "name": "Honey yoghurt",
+      "value": 307,
+      "xp": 101,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "cheese_board",
+      "name": "Cheese board",
+      "value": 371,
+      "xp": 122,
+      "maxOrderQty": 1
+    },
+    {
+      "id": "tulips",
+      "name": "Tulips",
+      "value": 38,
+      "xp": 13,
+      "maxOrderQty": 4
+    },
+    {
+      "id": "roses",
+      "name": "Roses",
+      "value": 55,
+      "xp": 18,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "lavender",
+      "name": "Lavender",
+      "value": 66,
+      "xp": 22,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "sunflowers",
+      "name": "Sunflowers",
+      "value": 91,
+      "xp": 30,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "posy",
+      "name": "Posy",
+      "value": 128,
+      "xp": 42,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "lavender_sachet",
+      "name": "Lavender sachet",
+      "value": 124,
+      "xp": 41,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "bouquet",
+      "name": "Bouquet",
+      "value": 250,
+      "xp": 82,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "gift_basket",
+      "name": "Gift basket",
+      "value": 481,
+      "xp": 159,
+      "maxOrderQty": 1
+    },
+    {
+      "id": "strawberry_jam",
+      "name": "Strawberry jam",
+      "value": 115,
+      "xp": 38,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "marmalade",
+      "name": "Marmalade",
+      "value": 159,
+      "xp": 52,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "honey",
+      "name": "Honey",
+      "value": 220,
+      "xp": 73,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "chutney",
+      "name": "Chutney",
+      "value": 200,
+      "xp": 66,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "lemon_curd",
+      "name": "Lemon curd",
+      "value": 178,
+      "xp": 59,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "lavender_honey",
+      "name": "Lavender honey",
+      "value": 416,
+      "xp": 137,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "fudge",
+      "name": "Fudge",
+      "value": 298,
+      "xp": 98,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "preserve_gift_set",
+      "name": "Preserve gift set",
+      "value": 681,
+      "xp": 225,
+      "maxOrderQty": 1
+    },
+    {
+      "id": "coffee",
+      "name": "Coffee",
+      "value": 159,
+      "xp": 52,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "tea",
+      "name": "Tea",
+      "value": 220,
+      "xp": 73,
+      "maxOrderQty": 3
+    },
+    {
+      "id": "latte",
+      "name": "Latte",
+      "value": 386,
+      "xp": 127,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "hot_chocolate",
+      "name": "Hot chocolate",
+      "value": 339,
+      "xp": 112,
+      "maxOrderQty": 2
+    },
+    {
+      "id": "breakfast_plate",
+      "name": "Breakfast plate",
+      "value": 497,
+      "xp": 164,
+      "maxOrderQty": 1
+    },
+    {
+      "id": "cream_tea",
+      "name": "Cream tea",
+      "value": 689,
+      "xp": 227,
+      "maxOrderQty": 1
+    },
+    {
+      "id": "afternoon_tea",
+      "name": "Afternoon tea",
+      "value": 899,
+      "xp": 297,
+      "maxOrderQty": 1
+    },
+    {
+      "id": "picnic_hamper",
+      "name": "Picnic hamper",
+      "value": 1054,
+      "xp": 348,
+      "maxOrderQty": 1
     }
   ]
 }

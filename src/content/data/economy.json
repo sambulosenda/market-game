@@ -13,15 +13,15 @@
       },
       {
         "capacity": 120,
-        "cost": 600
+        "cost": 800
       },
       {
         "capacity": 180,
-        "cost": 1500
+        "cost": 3000
       },
       {
         "capacity": 260,
-        "cost": 3500
+        "cost": 10000
       }
     ]
   },
