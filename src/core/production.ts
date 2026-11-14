@@ -1,5 +1,8 @@
 import type { Content, ShopLevel } from '../content/schema';
+import { batchSpeedMultiplier } from './bonuses';
 import { effectiveNow } from './clock';
+import { recipeAvailable } from './orders';
+import { pantrySpace } from './pantry';
 import type { ActionResult, Batch, GameEvent, GameState, ShopState } from './types';
 
 export function batchEndsAt(batch: Batch): number {
@@ -15,8 +18,9 @@ export function shopLevelConfig(content: Content, shopId: string, shop: ShopStat
   return levels[Math.min(Math.max(shop.level, 1), levels.length) - 1];
 }
 
-export function recipeDurationMs(content: Content, recipeId: string, level: ShopLevel): number {
-  return Math.round(content.recipes[recipeId].durationSec * 1000 * level.durationMultiplier);
+/** How long a batch takes at a shop level. `speed` is the landmark multiplier, 1 with none. */
+export function recipeDurationMs(content: Content, recipeId: string, level: ShopLevel, speed = 1): number {
+  return Math.round(content.recipes[recipeId].durationSec * 1000 * level.durationMultiplier * speed);
 }
 
 /** True when the pantry holds every input the recipe needs. */
@@ -41,6 +45,7 @@ export function startBatch(
   const recipe = content.recipes[recipeId];
   if (!recipe) return { ok: false, reason: 'unknown_recipe' };
   if (recipe.shop !== shopId) return { ok: false, reason: 'wrong_shop' };
+  if (!recipeAvailable(state, content, recipeId)) return { ok: false, reason: 'recipe_locked' };
   const level = shopLevelConfig(content, shopId, shop);
   if (shop.queue.length >= level.queueSize) return { ok: false, reason: 'queue_full' };
   if (!hasInputs(state, content, recipeId)) return { ok: false, reason: 'missing_inputs' };
@@ -56,7 +61,7 @@ export function startBatch(
     id: state.nextBatchId,
     recipe: recipeId,
     startAt: last ? Math.max(t, batchEndsAt(last)) : t,
-    durationMs: recipeDurationMs(content, recipeId, level),
+    durationMs: recipeDurationMs(content, recipeId, level, batchSpeedMultiplier(state, content)),
   };
   const next: GameState = {
     ...state,
@@ -74,7 +79,10 @@ export function startBatch(
   };
 }
 
-/** Moves every finished batch in the shop into the pantry. */
+/**
+ * Moves finished batches into the pantry, oldest first, as many as fit.
+ * Batches that do not fit stay in the queue, holding their slots.
+ */
 export function collect(
   state: GameState,
   content: Content,
@@ -87,10 +95,12 @@ export function collect(
   const t = effectiveNow(state, now);
   const ready = shop.queue.filter((b) => isBatchReady(b, t));
   if (!ready.length) return { ok: false, reason: 'nothing_ready' };
+  const taken = ready.slice(0, pantrySpace(state, content));
+  if (!taken.length) return { ok: false, reason: 'pantry_full' };
 
   const pantry = { ...state.pantry };
   const collected: Record<string, number> = {};
-  for (const batch of ready) {
+  for (const batch of taken) {
     const good = content.recipes[batch.recipe].output;
     pantry[good] = (pantry[good] ?? 0) + 1;
     collected[good] = (collected[good] ?? 0) + 1;
@@ -101,7 +111,7 @@ export function collect(
     good,
     qty,
   }));
-  const queue = shop.queue.filter((b) => !isBatchReady(b, t));
+  const queue = shop.queue.filter((b) => !taken.includes(b));
   return {
     ok: true,
     state: { ...state, clock: t, pantry, shops: { ...state.shops, [shopId]: { ...shop, queue } } },

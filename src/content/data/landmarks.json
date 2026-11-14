@@ -1,0 +1,50 @@
+{
+  "landmarks": [
+    {
+      "id": "fountain",
+      "name": "Fountain",
+      "lot": 2,
+      "stages": [
+        {
+          "coins": 300,
+          "goods": [
+            {
+              "good": "loaf",
+              "qty": 6
+            }
+          ]
+        },
+        {
+          "coins": 600,
+          "goods": [
+            {
+              "good": "milk",
+              "qty": 6
+            },
+            {
+              "good": "scones",
+              "qty": 4
+            }
+          ]
+        },
+        {
+          "coins": 1000,
+          "goods": [
+            {
+              "good": "butter",
+              "qty": 4
+            },
+            {
+              "good": "shortbread",
+              "qty": 6
+            }
+          ]
+        }
+      ],
+      "bonus": {
+        "type": "order_coins",
+        "percent": 10
+      }
+    }
+  ]
+}

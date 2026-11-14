@@ -5,6 +5,7 @@ import { useStore } from 'zustand';
 
 import { ui } from '../art';
 import { content } from '../content';
+import { pantryCapacity, pantryCount } from '../core';
 import { useGame } from '../store';
 import { setPantryTarget } from './fx/CollectFx';
 import { fxStore, shownCount } from './fx/fxStore';
@@ -12,9 +13,11 @@ import { GoodIcon } from './GoodIcon';
 import { strings } from './strings';
 import { colors } from './theme';
 
-/** Goods the player owns. The full pantry screen with capacity comes with T2.6 and T4.4. */
+/** Goods the player owns, with how full the pantry is. The full pantry screen comes with T4.4. */
 export function PantryBar() {
   const pantry = useGame((s) => s.game.pantry);
+  const count = useGame((s) => pantryCount(s.game));
+  const capacity = useGame((s) => pantryCapacity(s.game, content));
   const inFlight = useStore(fxStore, (s) => s.inFlight);
   const basket = useRef<React.ComponentRef<typeof View>>(null);
   useEffect(() => {
@@ -33,7 +36,9 @@ export function PantryBar() {
         <Image source={ui.ui_pantry.source} style={styles.basket} accessible={false} />
       </View>
       <View style={styles.body}>
-        <Text style={styles.label}>{strings.pantry}</Text>
+        <Text style={styles.label} accessibilityLabel={strings.a11y.pantryCount(count, capacity)}>
+          {strings.pantry} {strings.pantryCount(count, capacity)}
+        </Text>
         {items.length === 0 ? (
           <Text style={styles.empty}>{strings.pantryEmpty}</Text>
         ) : (

@@ -74,6 +74,57 @@ describe('game store', () => {
     expect(storage.data.get(`${CORRUPT_SAVE_KEY_PREFIX}${T0}.1`)).toBe('{newer');
   });
 
+  it('plays the loop: bake, fill orders, level up, buy the dairy', () => {
+    const t = setup();
+    const events: string[] = [];
+    let elapsed = 0;
+    const store = createGameStore({
+      storage: memoryStorage(),
+      content: testContent,
+      now: () => T0 + elapsed,
+      onEvents: (es) => events.push(...es.map((e) => e.type)),
+    });
+    const s = () => store.getState();
+    // Bake and sell loaves until level 2, then buy the dairy with the takings.
+    for (let i = 0; i < 40 && s().game.level < 2; i++) {
+      s().startBatch('bakery', 'loaf');
+      s().startBatch('bakery', 'loaf');
+      elapsed += 2 * MIN;
+      s().collect('bakery');
+      for (const slot of s().game.orders.slots) if ('order' in slot) s().fillOrder(slot.order.id);
+    }
+    expect(s().game.level).toBe(2);
+    expect(events).toContain('levelUp');
+    expect(s().game.wallet.gems).toBe(8);
+    expect(s().buyShop('dairy')).toBeNull();
+    expect(s().startBatch('dairy', 'butter')).toBeNull();
+    expect(s().game.wallet.log.map((x) => x.reason)).toContain('buy_shop');
+    expect(t.store.getState().buyShop('dairy')).toBe('level_too_low');
+  });
+
+  it('refills a skipped order slot once the wait is over, and saves it', () => {
+    const t = setup();
+    const first = t.store.getState().game.orders.slots[0];
+    if (!('order' in first)) throw new Error('expected an order');
+    expect(t.store.getState().skipOrder(first.order.id)).toBeNull();
+    t.advance(4 * MIN);
+    t.store.getState().refreshOrders();
+    expect('refillAt' in t.store.getState().game.orders.slots[0]).toBe(true);
+    t.advance(MIN);
+    t.store.getState().refreshOrders();
+    expect('order' in t.store.getState().game.orders.slots[0]).toBe(true);
+    expect(t.relaunch().getState().game.orders).toEqual(t.store.getState().game.orders);
+  });
+
+  it('fills the board when coming back after a skip', () => {
+    const t = setup();
+    const first = t.store.getState().game.orders.slots[0];
+    if (!('order' in first)) throw new Error('expected an order');
+    t.store.getState().skipOrder(first.order.id);
+    t.advance(HOUR);
+    expect(t.relaunch().getState().game.orders.slots.every((slot) => 'order' in slot)).toBe(true);
+  });
+
   it('shows no welcome-back when nothing finished', () => {
     const t = setup();
     t.store.getState().pause();

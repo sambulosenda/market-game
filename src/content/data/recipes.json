@@ -1,8 +1,109 @@
 {
   "recipes": [
-    { "id": "loaf", "shop": "bakery", "output": "loaf", "inputs": [], "durationSec": 30 },
-    { "id": "bread_rolls", "shop": "bakery", "output": "bread_rolls", "inputs": [], "durationSec": 45 },
-    { "id": "scones", "shop": "bakery", "output": "scones", "inputs": [], "durationSec": 90 },
-    { "id": "shortbread", "shop": "bakery", "output": "shortbread", "inputs": [], "durationSec": 120 }
+    {
+      "id": "loaf",
+      "shop": "bakery",
+      "output": "loaf",
+      "inputs": [],
+      "durationSec": 30
+    },
+    {
+      "id": "bread_rolls",
+      "shop": "bakery",
+      "output": "bread_rolls",
+      "inputs": [],
+      "durationSec": 45
+    },
+    {
+      "id": "scones",
+      "shop": "bakery",
+      "output": "scones",
+      "inputs": [],
+      "durationSec": 90
+    },
+    {
+      "id": "shortbread",
+      "shop": "bakery",
+      "output": "shortbread",
+      "inputs": [],
+      "durationSec": 120
+    },
+    {
+      "id": "croissant",
+      "shop": "bakery",
+      "output": "croissant",
+      "inputs": [
+        {
+          "good": "butter",
+          "qty": 1
+        }
+      ],
+      "durationSec": 240,
+      "shopLevel": 2
+    },
+    {
+      "id": "cheese_twist",
+      "shop": "bakery",
+      "output": "cheese_twist",
+      "inputs": [
+        {
+          "good": "cheese",
+          "qty": 1
+        }
+      ],
+      "durationSec": 300,
+      "shopLevel": 2
+    },
+    {
+      "id": "milk",
+      "shop": "dairy",
+      "output": "milk",
+      "inputs": [],
+      "durationSec": 60
+    },
+    {
+      "id": "cream",
+      "shop": "dairy",
+      "output": "cream",
+      "inputs": [],
+      "durationSec": 90
+    },
+    {
+      "id": "butter",
+      "shop": "dairy",
+      "output": "butter",
+      "inputs": [
+        {
+          "good": "cream",
+          "qty": 1
+        }
+      ],
+      "durationSec": 180
+    },
+    {
+      "id": "cheese",
+      "shop": "dairy",
+      "output": "cheese",
+      "inputs": [
+        {
+          "good": "milk",
+          "qty": 2
+        }
+      ],
+      "durationSec": 240
+    },
+    {
+      "id": "yoghurt",
+      "shop": "dairy",
+      "output": "yoghurt",
+      "inputs": [
+        {
+          "good": "milk",
+          "qty": 1
+        }
+      ],
+      "durationSec": 150,
+      "shopLevel": 2
+    }
   ]
 }

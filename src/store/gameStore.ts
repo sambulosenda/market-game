@@ -3,16 +3,23 @@ import { createStore } from 'zustand/vanilla';
 import type { Content } from '../content/schema';
 import {
   type ActionResult,
+  buyShop,
   collect,
   createInitialState,
   deserializeSave,
   type FailReason,
+  fillOrder,
   type GameEvent,
   type GameState,
   pause,
+  refreshOrders,
+  restoreLandmark,
   resume,
   serializeSave,
+  skipOrder,
   startBatch,
+  upgradePantry,
+  upgradeShop,
   type WelcomeBack,
 } from '../core';
 
@@ -31,6 +38,15 @@ export type GameStore = {
   welcomeBack: WelcomeBack | null;
   startBatch(shopId: string, recipeId: string): FailReason | null;
   collect(shopId: string): FailReason | null;
+  fillOrder(orderId: number): FailReason | null;
+  skipOrder(orderId: number): FailReason | null;
+  buyShop(shopId: string): FailReason | null;
+  upgradeShop(shopId: string): FailReason | null;
+  upgradePantry(): FailReason | null;
+  /** Restores the landmark's next stage. */
+  restoreLandmark(landmarkId: string): FailReason | null;
+  /** Refills order slots whose wait is over. Cheap, so screens call it as time passes. */
+  refreshOrders(): void;
   /** Call when the app comes to the foreground (and once at launch). */
   resume(): void;
   /** Call when the app goes to the background. */
@@ -86,7 +102,8 @@ export function createGameStore({ storage, content, now = Date.now, onEvents, on
       return null;
     };
 
-    const game = loadGame(storage, content, now(), onSaveError);
+    const start = now();
+    const game = refreshOrders(loadGame(storage, content, start, onSaveError), content, start);
     save(game);
 
     return {
@@ -94,8 +111,23 @@ export function createGameStore({ storage, content, now = Date.now, onEvents, on
       welcomeBack: null,
       startBatch: (shopId, recipeId) => apply(startBatch(get().game, content, shopId, recipeId, now())),
       collect: (shopId) => apply(collect(get().game, content, shopId, now())),
+      fillOrder: (orderId) => apply(fillOrder(get().game, content, orderId, now())),
+      skipOrder: (orderId) => apply(skipOrder(get().game, content, orderId, now())),
+      buyShop: (shopId) => apply(buyShop(get().game, content, shopId, now())),
+      upgradeShop: (shopId) => apply(upgradeShop(get().game, content, shopId, now())),
+      upgradePantry: () => apply(upgradePantry(get().game, content, now())),
+      restoreLandmark: (landmarkId) => apply(restoreLandmark(get().game, content, landmarkId, now())),
+      refreshOrders: () => {
+        const state = refreshOrders(get().game, content, now());
+        if (state === get().game) return;
+        save(state);
+        set({ game: state });
+      },
       resume: () => {
-        const { state, summary } = resume(get().game, content, now());
+        const t = now();
+        const resumed = resume(get().game, content, t);
+        const summary = resumed.summary;
+        const state = refreshOrders(resumed.state, content, t);
         save(state);
         const hasNews = Object.keys(summary.finished).length > 0;
         set({ game: state, welcomeBack: hasNews ? summary : get().welcomeBack });
