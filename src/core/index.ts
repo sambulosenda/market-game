@@ -11,5 +11,6 @@ export * from './rng';
 export * from './save';
 export * from './shops';
 export * from './state';
+export * from './tips';
 export * from './types';
 export * from './wallet';

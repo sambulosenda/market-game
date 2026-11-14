@@ -122,6 +122,8 @@ export const economySchema = z.strictObject({
     /** The most of one good an order asks for, from a player level up. */
     maxQty: byLevel({ max: z.number().int().positive() }),
   }),
+  /** A walking customer's tip = `base` + `perLevel` times the player's level, rounded down. */
+  tips: z.strictObject({ base: z.number().nonnegative(), perLevel: z.number().nonnegative() }),
   daily: z.strictObject({
     /** The goals a day's three are drawn from, each with its target from a player level up. */
     goals: z

@@ -8,6 +8,7 @@ import { pantryCapacity, pantryCount, upgradePantry } from '../pantry';
 import { collect, startBatch } from '../production';
 import { buyShop, upgradeShop } from '../shops';
 import { createInitialState } from '../state';
+import { tipCoins, tipCustomer } from '../tips';
 import type { ActionResult, GameState } from '../types';
 import { earn, spend, WALLET_LOG_SIZE } from '../wallet';
 import { HOUR, MIN, T0, testContent } from './fixtures';
@@ -17,8 +18,7 @@ function ok(r: ActionResult) {
   return r;
 }
 const fresh = (over: Partial<GameState> = {}): GameState => ({ ...createInitialState(testContent, T0, 1), ...over });
-const rich = (coins: number, over: Partial<GameState> = {}) =>
-  fresh({ ...over, wallet: { coins, gems: 0, log: [] } });
+const rich = (coins: number, over: Partial<GameState> = {}) => fresh({ ...over, wallet: { coins, gems: 0, log: [] } });
 
 describe('wallet', () => {
   it('logs every change with its reason and the balance after it', () => {
@@ -91,7 +91,12 @@ describe('levels', () => {
     expect(b.state.level).toBe(2);
     expect(b.state.wallet.gems).toBe(8);
     expect(b.events).toEqual([
-      { type: 'levelUp', level: 2, gems: 3, unlocks: { shops: ['dairy'], recipes: ['butter'], landmarks: ['fountain'] } },
+      {
+        type: 'levelUp',
+        level: 2,
+        gems: 3,
+        unlocks: { shops: ['dairy'], recipes: ['butter'], landmarks: ['fountain'] },
+      },
     ]);
   });
 
@@ -109,7 +114,10 @@ describe('levels', () => {
 describe('shops', () => {
   it('buys a shop once its level is reached and the coins are there', () => {
     expect(buyShop(rich(500), testContent, 'dairy', T0)).toEqual({ ok: false, reason: 'level_too_low' });
-    expect(buyShop(rich(49, { level: 2 }), testContent, 'dairy', T0)).toEqual({ ok: false, reason: 'not_enough_coins' });
+    expect(buyShop(rich(49, { level: 2 }), testContent, 'dairy', T0)).toEqual({
+      ok: false,
+      reason: 'not_enough_coins',
+    });
     const bought = ok(buyShop(rich(60, { level: 2 }), testContent, 'dairy', T0));
     expect(bought.state.shops.dairy).toEqual({ level: 1, queue: [] });
     expect(bought.state.wallet.coins).toBe(10);
@@ -145,8 +153,14 @@ describe('landmarks', () => {
   const ready = (over: Partial<GameState> = {}) => rich(100, { level: 3, pantry: { loaf: 9, butter: 1 }, ...over });
 
   it('restores one stage at a time for coins and goods', () => {
-    expect(restoreLandmark(ready({ level: 1 }), testContent, 'fountain', T0)).toEqual({ ok: false, reason: 'level_too_low' });
-    expect(restoreLandmark(ready({ pantry: {} }), testContent, 'fountain', T0)).toEqual({ ok: false, reason: 'missing_goods' });
+    expect(restoreLandmark(ready({ level: 1 }), testContent, 'fountain', T0)).toEqual({
+      ok: false,
+      reason: 'level_too_low',
+    });
+    expect(restoreLandmark(ready({ pantry: {} }), testContent, 'fountain', T0)).toEqual({
+      ok: false,
+      reason: 'missing_goods',
+    });
     expect(restoreLandmark(rich(9, { level: 2, pantry: { loaf: 1 } }), testContent, 'fountain', T0)).toEqual({
       ok: false,
       reason: 'not_enough_coins',
@@ -183,5 +197,18 @@ describe('landmarks', () => {
     expect(extraOrderSlots(s, testContent)).toBe(1);
     expect(orderSlotCount(s, testContent)).toBe(4);
     expect(s.orders.slots).toHaveLength(4);
+  });
+});
+
+describe('tips', () => {
+  it('pay a few coins, a little more at higher levels, and are logged', () => {
+    const s = createInitialState(testContent, T0, 1);
+    expect(tipCoins(s, testContent)).toBe(1);
+    expect(tipCoins({ ...s, level: 3 }, testContent)).toBe(2);
+    const result = tipCustomer({ ...s, level: 3 }, testContent, T0 + 5);
+    if (!result.ok) throw new Error('tip failed');
+    expect(result.events).toEqual([{ type: 'customerTipped', coins: 2 }]);
+    expect(result.state.wallet.coins).toBe(s.wallet.coins + 2);
+    expect(result.state.wallet.log.at(-1)).toMatchObject({ reason: 'tip', amount: 2 });
   });
 });

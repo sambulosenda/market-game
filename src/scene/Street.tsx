@@ -18,12 +18,14 @@ import { backgrounds, emptyPlotArt, goodArt, landmarkArt, shopArt, signArt, ui }
 import { content } from '../content';
 import { type ShopView, viewShop } from '../core';
 import { gameStore, useGame } from '../store';
+import { haptics } from '../ui/haptics';
 import { tapLot } from '../ui/lotActions';
 import { strings } from '../ui/strings';
 import { colors } from '../ui/theme';
 import { useNow } from '../ui/useNow';
 import { useReduceMotion } from '../ui/useReduceMotion';
 import { registerShopAnchor } from './anchors';
+import { Customers, useCrowd } from './Customers';
 import { GROUND_Y, LOT_WIDTH, lotAt, lotX, PARALLAX, SCENE_HEIGHT, SHOP_BASE_Y, streetWidth } from './layout';
 import { Sprite, TiledBand } from './sprites';
 import { Smoke, Structure, Swinging, useAmbientPhase } from './Structure';
@@ -85,6 +87,17 @@ export function Street() {
     return out;
   }, [game, now]);
 
+  // --- walking customers ---------------------------------------------------
+  const openLots = useMemo(
+    () =>
+      Object.keys(game.shops)
+        .map((id) => content.shops[id]?.lot)
+        .filter((lot) => lot !== undefined)
+        .sort((a, b) => a - b),
+    [game.shops],
+  );
+  const crowd = useCrowd(openLots, fullWidth, still);
+
   // --- scrolling ---------------------------------------------------------
   const scrollX = useSharedValue(0);
   const panStart = useSharedValue(0);
@@ -115,6 +128,12 @@ export function Street() {
   const tap = useTapGesture({
     runOnJS: true,
     onActivate: (e) => {
+      // A customer stands in front of the shops, so a tap on one is theirs.
+      if (crowd.tipAt(e.x + scrollX.value, e.y)) {
+        haptics.light();
+        gameStore.getState().tipCustomer();
+        return;
+      }
       const lot = lotAt(e.x + scrollX.value, e.y, lotCount);
       if (lot === null) return;
       pressedLot.value = lot;
@@ -242,6 +261,7 @@ export function Street() {
                 </Lot>
               );
             })}
+            <Customers customers={crowd.customers} clock={crowd.clock} />
           </Group>
         </Canvas>
       </GestureDetector>

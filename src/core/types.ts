@@ -37,7 +37,8 @@ export type TransactionReason =
   | 'upgrade_pantry'
   | 'restore_landmark'
   | 'daily_goal'
-  | 'daily_calendar';
+  | 'daily_calendar'
+  | 'tip';
 
 /** One change to the wallet. `amount` is negative for spending. */
 export type Transaction = {
@@ -130,7 +131,8 @@ export type GameEvent =
   | { type: 'pantryUpgraded'; level: number; capacity: number }
   | { type: 'landmarkStageRestored'; landmark: string; stage: number; complete: boolean }
   | { type: 'dailyGoalClaimed'; kind: DailyGoalKind; coins: number; gems: number }
-  | { type: 'calendarGiftClaimed'; day: number; coins: number; gems: number };
+  | { type: 'calendarGiftClaimed'; day: number; coins: number; gems: number }
+  | { type: 'customerTipped'; coins: number };
 
 export type FailReason =
   | 'unknown_shop'
