@@ -1,0 +1,78 @@
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+
+import { deleteAllData, settingsStore, useSettings } from '../store';
+import type { SettingKey } from '../store/settings';
+import { haptics } from './haptics';
+import { Button, Popup, Sheet, ToggleRow, Txt, Well } from './kit';
+import { strings } from './strings';
+import { colors, space } from './theme';
+import { closeSheet } from './uiStore';
+
+const toggles: SettingKey[] = ['music', 'sound', 'haptics', 'notifications', 'reduceMotion'];
+
+/** The settings: each switch applies at once and is saved. Deleting data asks first. */
+export function SettingsSheet() {
+  const settings = useSettings((s) => s);
+  const [confirming, setConfirming] = useState(false);
+
+  const change = (key: SettingKey, value: boolean) => {
+    settingsStore.getState().set(key, value);
+    // After the change, so turning haptics on is felt and turning them off is not.
+    haptics.light();
+  };
+
+  return (
+    <>
+      <Sheet title={strings.settings.title} onClose={closeSheet}>
+        <Well style={styles.group}>
+          {toggles.map((key) => (
+            <ToggleRow
+              key={key}
+              label={strings.settings[key]}
+              hint={strings.settings.hints[key]}
+              value={settings[key]}
+              onChange={(value) => change(key, value)}
+            />
+          ))}
+        </Well>
+        <View style={styles.danger}>
+          <Txt variant="small" soft>
+            {strings.settings.deleteHint}
+          </Txt>
+          <Button kind="secondary" label={strings.settings.deleteData} onPress={() => setConfirming(true)} />
+        </View>
+      </Sheet>
+      {confirming && (
+        <Popup
+          title={strings.settings.deleteTitle}
+          onClose={() => setConfirming(false)}
+          footer={
+            <>
+              <Button label={strings.settings.deleteKeep} onPress={() => setConfirming(false)} />
+              <Button
+                kind="secondary"
+                label={strings.settings.deleteConfirm}
+                haptic={false}
+                onPress={() => {
+                  deleteAllData();
+                  haptics.warning();
+                  setConfirming(false);
+                  closeSheet();
+                }}
+              />
+            </>
+          }
+        >
+          <Txt style={styles.centre}>{strings.settings.deleteBody}</Txt>
+        </Popup>
+      )}
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  group: { paddingHorizontal: space.md, paddingVertical: space.xs },
+  danger: { gap: space.sm, borderTopWidth: 1, borderColor: colors.panelEdge, paddingTop: space.md },
+  centre: { textAlign: 'center' },
+});

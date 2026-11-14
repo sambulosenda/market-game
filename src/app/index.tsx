@@ -11,8 +11,11 @@ import { LandmarkSheet } from '@/ui/LandmarkSheet';
 import { LevelUpPopup } from '@/ui/LevelUpPopup';
 import { OrderBoard } from '@/ui/OrderBoard';
 import { PantrySheet } from '@/ui/PantrySheet';
+import { SettingsSheet } from '@/ui/SettingsSheet';
 import { ShopSheet } from '@/ui/ShopSheet';
+import { StreetPlaces } from '@/ui/StreetPlaces';
 import { colors } from '@/ui/theme';
+import { TutorialPointer } from '@/ui/tutorial/TutorialPointer';
 import { uiStore } from '@/ui/uiStore';
 import { useAppLifecycle } from '@/ui/useAppLifecycle';
 import { useGameFeedback } from '@/ui/useGameFeedback';
@@ -31,11 +34,14 @@ export default function StreetScreen() {
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         <Hud />
         <Street />
+        <StreetPlaces />
         <OrderBoard />
       </SafeAreaView>
       {sheet?.kind === 'shop' && <ShopSheet key={sheet.id} shopId={sheet.id} />}
       {sheet?.kind === 'landmark' && <LandmarkSheet key={sheet.id} landmarkId={sheet.id} />}
       {sheet?.kind === 'pantry' && <PantrySheet />}
+      {sheet?.kind === 'settings' && <SettingsSheet />}
+      <TutorialPointer />
       <CollectFx />
       <RewardFx />
       <LevelUpPopup />

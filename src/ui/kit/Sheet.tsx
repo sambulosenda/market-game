@@ -1,10 +1,11 @@
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, type Ref, useEffect } from 'react';
 import { BackHandler, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { strings } from '../strings';
 import { colors, radius, space, TAP } from '../theme';
+import { useReduceMotion } from '../useReduceMotion';
 import { Txt } from './Txt';
 
 type Props = {
@@ -15,6 +16,8 @@ type Props = {
   children: ReactNode;
   /** Stays at the bottom of the sheet, below the scrolling content. */
   footer?: ReactNode;
+  /** Gives the close button's view, for anything that needs to find it on screen. */
+  closeRef?: Ref<React.ComponentRef<typeof View>>;
 };
 
 /**
@@ -22,8 +25,9 @@ type Props = {
  * modal, so pop-ups and effects can sit above it. Mount it to open it and
  * unmount it to close it; it slides in and out by itself.
  */
-export function Sheet({ title, subtitle, onClose, children, footer }: Props) {
+export function Sheet({ title, subtitle, onClose, children, footer, closeRef }: Props) {
   const insets = useSafeAreaInsets();
+  const still = useReduceMotion();
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       onClose();
@@ -43,8 +47,8 @@ export function Sheet({ title, subtitle, onClose, children, footer }: Props) {
         />
       </Animated.View>
       <Animated.View
-        entering={SlideInDown.duration(220)}
-        exiting={SlideOutDown.duration(180)}
+        entering={still ? FadeIn.duration(150) : SlideInDown.duration(220)}
+        exiting={still ? FadeOut.duration(150) : SlideOutDown.duration(180)}
         style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, space.lg) }]}
         accessibilityViewIsModal
       >
@@ -56,6 +60,7 @@ export function Sheet({ title, subtitle, onClose, children, footer }: Props) {
             {subtitle ? <Txt soft>{subtitle}</Txt> : null}
           </View>
           <Pressable
+            ref={closeRef}
             onPress={onClose}
             style={styles.close}
             hitSlop={8}

@@ -1,5 +1,4 @@
 import { Canvas, Circle, Group, matchFont, Path, RoundedRect, Skia, Text } from '@shopify/react-native-skia';
-import * as Haptics from 'expo-haptics';
 import { useEffect, useMemo, useRef } from 'react';
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
@@ -19,9 +18,9 @@ import { backgrounds, emptyPlotArt, goodArt, landmarkArt, shopArt, signArt, ui }
 import { content } from '../content';
 import { type ShopView, viewShop } from '../core';
 import { gameStore, useGame } from '../store';
-import { failText, strings } from '../ui/strings';
+import { tapLot } from '../ui/lotActions';
+import { strings } from '../ui/strings';
 import { colors } from '../ui/theme';
-import { openSheet, toast } from '../ui/uiStore';
 import { useNow } from '../ui/useNow';
 import { registerShopAnchor } from './anchors';
 import { GROUND_Y, LOT_WIDTH, lotAt, lotX, PARALLAX, SCENE_HEIGHT, SHOP_BASE_Y, streetWidth } from './layout';
@@ -113,28 +112,7 @@ export function Street() {
       if (lot === null) return;
       pressedLot.value = lot;
       bounce.value = withSequence(withTiming(0.93, { duration: 70 }), withSpring(1, { damping: 8, stiffness: 300 }));
-      const store = gameStore.getState();
-      const shopId = shopsByLot.get(lot);
-      const landmarkId = landmarksByLot.get(lot);
-      if (shopId) {
-        // A tap collects when something is ready, so the loop runs without a menu. Otherwise it opens the shop.
-        const failed = store.game.shops[shopId] ? store.collect(shopId) : 'shop_not_owned';
-        if (failed === null) {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        } else if (failed === 'pantry_full') {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-          toast(failText(failed));
-        } else {
-          Haptics.selectionAsync();
-          openSheet({ kind: 'shop', id: shopId });
-        }
-        return;
-      }
-      Haptics.selectionAsync();
-      if (!landmarkId) return;
-      const unlocksAt = content.unlockLevel.landmarks[landmarkId];
-      if (store.game.level >= unlocksAt) openSheet({ kind: 'landmark', id: landmarkId });
-      else toast(strings.landmarkLocked(content.landmarks[landmarkId].name, unlocksAt));
+      tapLot(lot);
     },
   });
   const gesture = useCompetingGestures(pan, tap);
@@ -150,10 +128,11 @@ export function Street() {
           if (!shop || !node) return resolve(null);
           node.measureInWindow((x, y) => {
             const cx = lotX(shop.lot) + LOT_WIDTH / 2 - scrollX.value;
-            const level = gameStore.getState().game.shops[shopId]?.level ?? 1;
+            const owned = gameStore.getState().game.shops[shopId];
+            const height = owned ? (shopArt(shopId, owned.level)?.h ?? 0) : emptyPlotArt.h;
             resolve({
               x: x + Math.min(width, Math.max(0, cx)),
-              y: y + indicatorY(shopArt(shopId, level)?.h ?? 0),
+              y: y + indicatorY(height),
             });
           });
         }),

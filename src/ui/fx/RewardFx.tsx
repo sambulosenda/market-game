@@ -4,7 +4,6 @@ import Animated, {
   Easing,
   interpolate,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withTiming,
@@ -15,6 +14,7 @@ import type { Point } from '../../scene/anchors';
 import { onGameEvents } from '../../store';
 import { Amount, CurrencyIcon } from '../kit';
 import { colors, radius } from '../theme';
+import { useReduceMotion } from '../useReduceMotion';
 import { centreOf, type Measurable, originOf } from './measure';
 
 const COINS = 6;
@@ -47,7 +47,7 @@ export function RewardFx() {
   const [bursts, setBursts] = useState<Burst[]>([]);
   const layer = useRef<React.ComponentRef<typeof View>>(null);
   const nextId = useRef(1);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
 
   useEffect(() => {
     if (reduceMotion) return;

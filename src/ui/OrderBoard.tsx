@@ -4,12 +4,16 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { content } from '../content';
 import { canFillOrder, type Order, orderCoins } from '../core';
 import { gameStore, useGame } from '../store';
+import { Bouncy } from './Bouncy';
 import { report } from './feedback';
 import { setRewardOrigin } from './fx/RewardFx';
 import { GoodIcon } from './GoodIcon';
 import { Amount, Button, Panel, Txt } from './kit';
 import { strings } from './strings';
-import { colors, radius, space } from './theme';
+import { colors, radius, space, TAP } from './theme';
+import { openSheet } from './uiStore';
+import { targetIds } from './tutorial/steps';
+import { Target } from './tutorial/targets';
 import { useNow } from './useNow';
 
 /** The order board: every open order with what it asks for and what it pays. */
@@ -17,9 +21,22 @@ export function OrderBoard() {
   const slots = useGame((s) => s.game.orders.slots);
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.list}>
-      <Txt variant="heading" accessibilityRole="header">
-        {strings.orders}
-      </Txt>
+      <View style={styles.head}>
+        <Txt variant="heading" accessibilityRole="header">
+          {strings.orders}
+        </Txt>
+        <Bouncy
+          accessibilityRole="button"
+          accessibilityLabel={strings.a11y.settingsButton}
+          onPress={() => openSheet({ kind: 'settings' })}
+          style={styles.gear}
+          hitSlop={6}
+        >
+          <Txt variant="heading" soft>
+            ⚙︎
+          </Txt>
+        </Bouncy>
+      </View>
       {slots.map((slot, i) =>
         'order' in slot ? (
           <OrderCard key={`o${slot.order.id}`} order={slot.order} />
@@ -96,14 +113,16 @@ function OrderCard({ order }: { order: Order }) {
               accessibilityLabel={strings.a11y.skipOrder}
               onPress={() => report(gameStore.getState().skipOrder(order.id))}
             />
-            <Button
-              small
-              label={strings.fill}
-              accessibilityLabel={strings.a11y.fillOrder(coins, order.xp)}
-              disabled={!canFill}
-              haptic={false}
-              onPress={fill}
-            />
+            <Target id={targetIds.fill(order.id)}>
+              <Button
+                small
+                label={strings.fill}
+                accessibilityLabel={strings.a11y.fillOrder(coins, order.xp)}
+                disabled={!canFill}
+                haptic={false}
+                onPress={fill}
+              />
+            </Target>
           </View>
         </View>
       </Panel>
@@ -128,6 +147,15 @@ function WaitingSlot({ refillAt }: { refillAt: number }) {
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.page },
   list: { padding: space.lg, gap: space.sm },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  gear: {
+    width: TAP,
+    height: TAP,
+    borderRadius: TAP / 2,
+    backgroundColor: colors.well,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   card: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   items: { flex: 1, gap: space.sm },
   item: { flexDirection: 'row', alignItems: 'center', gap: space.sm },

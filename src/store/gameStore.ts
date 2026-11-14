@@ -27,6 +27,8 @@ import {
 export type KeyValueStorage = {
   getString(key: string): string | undefined;
   set(key: string, value: string): void;
+  /** Removes everything in the store. */
+  clearAll(): void;
 };
 
 export const SAVE_KEY = 'save';
@@ -52,6 +54,8 @@ export type GameStore = {
   /** Call when the app goes to the background. */
   pause(): void;
   dismissWelcomeBack(): void;
+  /** Deletes everything saved on the device and starts a new game. It cannot be undone. */
+  deleteAllData(): void;
 };
 
 export type GameStoreOptions = {
@@ -138,6 +142,12 @@ export function createGameStore({ storage, content, now = Date.now, onEvents, on
         set({ game: state });
       },
       dismissWelcomeBack: () => set({ welcomeBack: null }),
+      deleteAllData: () => {
+        storage.clearAll();
+        const fresh = createInitialState(content, now());
+        save(fresh);
+        set({ game: fresh, welcomeBack: null });
+      },
     };
   });
 }
