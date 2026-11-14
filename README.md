@@ -32,6 +32,7 @@ npm run validate:content # just the content config checks
 npm run build:art        # rebuild assets/art from the 1024px originals (see Art)
 npm run simulate         # balance report: when a typical player reaches each unlock (see Balance)
 npm run check            # type check, lint and tests together
+npm run check:release    # what a store submission still needs (see Release)
 ```
 
 Every pull request runs the type check, the lint and the tests in GitHub Actions (`.github/workflows/ci.yml`).
@@ -67,6 +68,10 @@ The art is painted at 1024px, far bigger than the game draws it. The originals a
 - regenerates `src/art/manifest.ts`, and the app icon and splash in `assets/images`
 
 Files are named by content id: `good_<goodId>`, `shop_<shopId>_l<level>`, `sign_<shopId>`. A test fails if a good or shop in the content has no art.
+
+## Release
+
+The store listing is in `store.config.json`, the public privacy policy, terms and support page are in `docs/` (served by GitHub Pages), and the privacy label answers, in-app products and screenshot plan are in `release/`. `release/README.md` has the build and submit commands. `npm run check:release` lists what is still missing before a submission.
 
 ## Rules the code follows
 

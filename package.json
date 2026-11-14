@@ -1,6 +1,6 @@
 {
   "name": "market-street",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
     "@shopify/react-native-skia": "2.14.0",
@@ -49,7 +49,8 @@
     "validate:content": "vitest run src/content",
     "check": "npm run typecheck && npm run lint && npm test",
     "build:art": "node scripts/build-art.mjs",
-    "simulate": "tsx scripts/simulate.ts"
+    "simulate": "tsx scripts/simulate.ts",
+    "check:release": "node scripts/check-release.mjs"
   },
   "private": true
 }
