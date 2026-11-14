@@ -122,6 +122,13 @@ export const economySchema = z.strictObject({
     /** The most of one good an order asks for, from a player level up. */
     maxQty: byLevel({ max: z.number().int().positive() }),
   }),
+  /** Local notifications: none between the quiet hours (local time), a cap per day, and a gap between two. */
+  notifications: z.strictObject({
+    quietStartHour: z.number().int().min(0).max(23),
+    quietEndHour: z.number().int().min(0).max(23),
+    maxPerDay: z.number().int().min(0).max(2),
+    minGapMinutes: z.number().int().nonnegative(),
+  }),
   gems: z.strictObject({
     /** Finishing a baking batch costs one gem for each of these minutes left, rounded up. */
     skipMinutesPerGem: z.number().positive(),

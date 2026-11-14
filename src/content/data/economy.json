@@ -204,5 +204,11 @@
         "gems": 5
       }
     ]
+  },
+  "notifications": {
+    "quietStartHour": 21,
+    "quietEndHour": 9,
+    "maxPerDay": 2,
+    "minGapMinutes": 60
   }
 }
