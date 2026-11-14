@@ -1,10 +1,11 @@
-import { type Art, backgrounds, goods, shops, signs, ui } from './manifest';
+import { type Art, backgrounds, goods, landmarks, shops, signs, ui } from './manifest';
 
 export type { Art };
 export { backgrounds, ui };
 
 const goodsByName: Record<string, Art | undefined> = goods;
 const shopsByName: Record<string, Art | undefined> = shops;
+const landmarksByName: Record<string, Art | undefined> = landmarks;
 const signsByName: Record<string, Art | undefined> = signs;
 
 /** The icon for a good, by content id. */
@@ -19,6 +20,11 @@ export function shopArt(shopId: string, level: number): Art | undefined {
     if (art) return art;
   }
   return undefined;
+}
+
+/** A landmark with this many stages restored (0 to 3). */
+export function landmarkArt(landmarkId: string, stage: number): Art | undefined {
+  return landmarksByName[`landmark_${landmarkId}_${Math.min(Math.max(stage, 0), 3)}`];
 }
 
 export function signArt(shopId: string): Art | undefined {

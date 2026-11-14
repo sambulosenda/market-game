@@ -4,8 +4,9 @@
  * the current state plus a timestamp (milliseconds since the epoch) and return
  * a new state, so they can be unit tested and simulated.
  */
+import type { GoodQty, Level } from '../content/schema';
 
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 /** One batch in a shop's queue. Timers are timestamps, never tickers. */
 export type Batch = {
@@ -26,6 +27,44 @@ export type ShopState = {
   queue: Batch[];
 };
 
+export type Currency = 'coins' | 'gems';
+
+export type TransactionReason =
+  | 'order'
+  | 'level_up'
+  | 'buy_shop'
+  | 'upgrade_shop'
+  | 'upgrade_pantry'
+  | 'restore_landmark';
+
+/** One change to the wallet. `amount` is negative for spending. */
+export type Transaction = {
+  at: number;
+  currency: Currency;
+  amount: number;
+  reason: TransactionReason;
+  /** The balance of that currency after the change. */
+  balance: number;
+};
+
+export type Wallet = {
+  coins: number;
+  gems: number;
+  /** The most recent transactions, oldest first. Capped, so the save stays small. */
+  log: Transaction[];
+};
+
+export type Order = {
+  id: number;
+  items: GoodQty[];
+  /** Coins paid before landmark bonuses, fixed when the order is made. */
+  coins: number;
+  xp: number;
+};
+
+/** A slot on the order board holds an order, or is empty until `refillAt`. */
+export type OrderSlot = { order: Order } | { refillAt: number };
+
 export type GameState = {
   version: typeof SAVE_VERSION;
   createdAt: number;
@@ -39,22 +78,51 @@ export type GameState = {
   nextBatchId: number;
   /** Goods the player owns, by good id. */
   pantry: Record<string, number>;
+  /** 1-based, indexing `economy.pantry.levels`. */
+  pantryLevel: number;
   /** Shops the player owns, by shop id. */
   shops: Record<string, ShopState>;
+  wallet: Wallet;
+  /** Total XP ever earned. */
+  xp: number;
+  /** 1-based player level, indexing `levels` in content. */
+  level: number;
+  orders: { slots: OrderSlot[]; nextId: number };
+  /** Restoration stages finished, by landmark id. Missing means none. */
+  landmarks: Record<string, { stage: number }>;
+  /** State of the random number generator, so order generation can be replayed. */
+  rng: number;
 };
 
 export type GameEvent =
   | { type: 'batchStarted'; shop: string; recipe: string; batchId: number; endsAt: number }
-  | { type: 'batchCollected'; shop: string; good: string; qty: number };
+  | { type: 'batchCollected'; shop: string; good: string; qty: number }
+  | { type: 'orderFilled'; orderId: number; coins: number; xp: number }
+  | { type: 'orderSkipped'; orderId: number; refillAt: number }
+  | { type: 'levelUp'; level: number; gems: number; unlocks: Level['unlocks'] }
+  | { type: 'shopBought'; shop: string }
+  | { type: 'shopUpgraded'; shop: string; level: number }
+  | { type: 'pantryUpgraded'; level: number; capacity: number }
+  | { type: 'landmarkStageRestored'; landmark: string; stage: number; complete: boolean };
 
 export type FailReason =
   | 'unknown_shop'
   | 'shop_not_owned'
   | 'unknown_recipe'
   | 'wrong_shop'
+  | 'recipe_locked'
   | 'queue_full'
   | 'missing_inputs'
-  | 'nothing_ready';
+  | 'nothing_ready'
+  | 'pantry_full'
+  | 'already_owned'
+  | 'level_too_low'
+  | 'max_level'
+  | 'not_enough_coins'
+  | 'unknown_order'
+  | 'missing_goods'
+  | 'unknown_landmark'
+  | 'already_restored';
 
 export type ActionResult =
   | { ok: true; state: GameState; events: GameEvent[] }

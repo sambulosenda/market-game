@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { content } from '../content';
-import { viewShop } from '../core';
+import { pantrySpace, recipeAvailable, viewShop } from '../core';
 import { gameStore, useGame } from '../store';
 import { Bouncy } from './Bouncy';
 import { GoodIcon } from './GoodIcon';
@@ -21,7 +21,8 @@ export function BakePanel({ shopId }: { shopId: string }) {
   if (!game.shops[shopId]) return null;
   const view = viewShop(game, content, shopId, now);
   const full = view.batches.length >= view.queueSize;
-  const recipes = Object.values(content.recipes).filter((r) => r.shop === shopId);
+  const recipes = Object.values(content.recipes).filter((r) => r.shop === shopId && recipeAvailable(game, content, r.id));
+  const pantryFull = pantrySpace(game, content) === 0;
 
   const bake = (recipeId: string) => {
     const failed = gameStore.getState().startBatch(shopId, recipeId);
@@ -78,13 +79,17 @@ export function BakePanel({ shopId }: { shopId: string }) {
           haptic={false}
           style={styles.collect}
           onPress={() => {
-            if (gameStore.getState().collect(shopId) === null)
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            const failed = gameStore.getState().collect(shopId);
+            Haptics.notificationAsync(
+              failed ? Haptics.NotificationFeedbackType.Warning : Haptics.NotificationFeedbackType.Success,
+            );
           }}
         >
           <Text style={styles.buttonText}>{strings.collect(view.readyCount)}</Text>
         </Bouncy>
       )}
+
+      {view.readyCount > 0 && pantryFull && <Text style={styles.hint}>{strings.pantryFull}</Text>}
 
       <View style={styles.recipes}>
         {recipes.map((r) => {

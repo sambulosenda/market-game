@@ -15,7 +15,7 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
-import { backgrounds, emptyPlotArt, goodArt, shopArt, signArt, ui } from '../art';
+import { backgrounds, emptyPlotArt, goodArt, landmarkArt, shopArt, signArt, ui } from '../art';
 import { content } from '../content';
 import { type ShopView, viewShop } from '../core';
 import { gameStore, useGame } from '../store';
@@ -63,6 +63,12 @@ export function Street() {
   const shopsByLot = useMemo(() => {
     const map = new Map<number, string>();
     for (const shop of Object.values(content.shops)) map.set(shop.lot, shop.id);
+    return map;
+  }, []);
+
+  const landmarksByLot = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const landmark of Object.values(content.landmarks)) map.set(landmark.lot, landmark.id);
     return map;
   }, []);
 
@@ -170,6 +176,12 @@ export function Street() {
               const owned = shopId ? game.shops[shopId] : undefined;
               const building = shopId && owned ? shopArt(shopId, owned.level) : undefined;
               const view = shopId ? views[shopId] : undefined;
+              // A landmark shows, in ruins, from the level that unlocks it.
+              const landmarkId = landmarksByLot.get(lot);
+              const landmark =
+                landmarkId && game.level >= content.unlockLevel.landmarks[landmarkId]
+                  ? landmarkArt(landmarkId, game.landmarks[landmarkId]?.stage ?? 0)
+                  : undefined;
               return (
                 <Lot key={lot} lot={lot} pressedLot={pressedLot} bounce={bounce}>
                   {shopId && building ? (
@@ -182,6 +194,8 @@ export function Street() {
                         </Group>
                       )}
                     </>
+                  ) : landmark ? (
+                    <Sprite art={landmark} cx={LOT_WIDTH / 2} baseY={SHOP_BASE_Y} />
                   ) : (
                     <Sprite art={emptyPlotArt} cx={LOT_WIDTH / 2} baseY={SHOP_BASE_Y} />
                   )}

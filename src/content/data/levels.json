@@ -1,0 +1,278 @@
+{
+  "levels": [
+    {
+      "xp": 0,
+      "orderSlots": 3,
+      "gems": 0,
+      "unlocks": {
+        "shops": [
+          "bakery"
+        ],
+        "recipes": [
+          "loaf",
+          "bread_rolls"
+        ],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 8,
+      "orderSlots": 3,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [
+          "scones"
+        ],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 34,
+      "orderSlots": 3,
+      "gems": 2,
+      "unlocks": {
+        "shops": [
+          "dairy"
+        ],
+        "recipes": [
+          "milk",
+          "cream"
+        ],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 80,
+      "orderSlots": 4,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [
+          "shortbread",
+          "butter"
+        ],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 148,
+      "orderSlots": 4,
+      "gems": 5,
+      "unlocks": {
+        "shops": [],
+        "recipes": [
+          "cheese"
+        ],
+        "landmarks": [
+          "fountain"
+        ]
+      }
+    },
+    {
+      "xp": 234,
+      "orderSlots": 4,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [
+          "croissant"
+        ],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 344,
+      "orderSlots": 4,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [
+          "yoghurt",
+          "cheese_twist"
+        ],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 476,
+      "orderSlots": 4,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 630,
+      "orderSlots": 5,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 808,
+      "orderSlots": 5,
+      "gems": 5,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 1008,
+      "orderSlots": 5,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 1230,
+      "orderSlots": 5,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 1476,
+      "orderSlots": 5,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 1748,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 2042,
+      "orderSlots": 6,
+      "gems": 5,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 2360,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 2702,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 3070,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 3460,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 3876,
+      "orderSlots": 6,
+      "gems": 5,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 4318,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 4784,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 5274,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 5790,
+      "orderSlots": 6,
+      "gems": 2,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    },
+    {
+      "xp": 6332,
+      "orderSlots": 6,
+      "gems": 5,
+      "unlocks": {
+        "shops": [],
+        "recipes": [],
+        "landmarks": []
+      }
+    }
+  ]
+}

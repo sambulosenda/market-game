@@ -1,0 +1,77 @@
+{
+  "startingCoins": 20,
+  "startingGems": 5,
+  "pantry": {
+    "levels": [
+      {
+        "capacity": 50,
+        "cost": 0
+      },
+      {
+        "capacity": 80,
+        "cost": 200
+      },
+      {
+        "capacity": 120,
+        "cost": 600
+      },
+      {
+        "capacity": 180,
+        "cost": 1500
+      },
+      {
+        "capacity": 260,
+        "cost": 3500
+      }
+    ]
+  },
+  "orders": {
+    "skipCooldownSec": 300,
+    "coinMultiplier": 1.5,
+    "extraKindBonus": 0.15,
+    "kinds": [
+      {
+        "minLevel": 1,
+        "weights": [
+          1,
+          0,
+          0
+        ]
+      },
+      {
+        "minLevel": 2,
+        "weights": [
+          3,
+          1,
+          0
+        ]
+      },
+      {
+        "minLevel": 6,
+        "weights": [
+          2,
+          2,
+          1
+        ]
+      }
+    ],
+    "maxQty": [
+      {
+        "minLevel": 1,
+        "max": 2
+      },
+      {
+        "minLevel": 3,
+        "max": 3
+      },
+      {
+        "minLevel": 8,
+        "max": 4
+      },
+      {
+        "minLevel": 15,
+        "max": 5
+      }
+    ]
+  }
+}

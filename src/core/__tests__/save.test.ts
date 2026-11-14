@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { deserializeSave, type Migration, runMigrations, SaveError, serializeSave } from '../save';
+import { deserializeSave, type Migration, MIGRATIONS, runMigrations, SaveError, serializeSave } from '../save';
+import { refreshOrders } from '../orders';
 import { createInitialState } from '../state';
 import { SAVE_VERSION } from '../types';
 import { T0, testContent } from './fixtures';
@@ -39,9 +40,8 @@ describe('save', () => {
         },
       },
     ];
-    expect(SAVE_VERSION).toBe(1);
-    const state = deserializeSave(JSON.stringify(v0), testContent, migrations);
-    expect(state.version).toBe(1);
+    const state = deserializeSave(JSON.stringify(v0), testContent, [...migrations, ...MIGRATIONS]);
+    expect(state.version).toBe(SAVE_VERSION);
     expect(state.pantry).toEqual({ loaf: 2 });
     expect(state.nextBatchId).toBe(2);
     expect(state.shops.bakery.queue[0].id).toBe(1);
@@ -52,7 +52,28 @@ describe('save', () => {
       { from: 1, migrate: (s) => ({ ...s, trail: [...(s.trail as string[]), 'a'] }) },
       { from: 2, migrate: (s) => ({ ...s, trail: [...(s.trail as string[]), 'b'] }) },
     ];
-    expect(runMigrations({ version: 1, trail: [] }, migrations, 3)).toEqual({ version: 3, trail: ['a', 'b'] });
+    expect(runMigrations({ version: 1, trail: [] }, migrations, 3, testContent)).toEqual({ version: 3, trail: ['a', 'b'] });
+  });
+
+  it('brings a version 1 save (the core loop build) forward without losing it', () => {
+    const v1 = {
+      version: 1,
+      createdAt: T0,
+      clock: T0 + 5000,
+      nextBatchId: 2,
+      pantry: { loaf: 3 },
+      shops: { bakery: { level: 1, queue: [{ id: 1, recipe: 'loaf', startAt: T0, durationMs: 60000 }] } },
+    };
+    const state = deserializeSave(JSON.stringify(v1), testContent);
+    expect(state.version).toBe(2);
+    expect(state.pantry).toEqual({ loaf: 3 });
+    expect(state.shops.bakery.queue).toHaveLength(1);
+    expect(state.wallet).toEqual({ coins: 20, gems: 5, log: [] });
+    expect([state.level, state.xp, state.pantryLevel]).toEqual([1, 0, 1]);
+    expect(state.landmarks).toEqual({});
+    // The board starts empty; the first refresh fills it.
+    const filled = refreshOrders(state, testContent, state.clock);
+    expect(filled.orders.slots).toHaveLength(2);
   });
 
   it('refuses saves it cannot read', () => {
@@ -85,5 +106,25 @@ describe('save', () => {
     expect(state.pantry).toEqual({ loaf: 1 });
     expect(Object.keys(state.shops)).toEqual(['bakery']);
     expect(state.shops.bakery.queue.map((b) => b.id)).toEqual([1]);
+  });
+
+  it('reconciles levels, landmarks and orders with content that changed', () => {
+    const s = createInitialState(testContent, T0, 1);
+    const raw = serializeSave({
+      ...s,
+      xp: 12,
+      level: 9,
+      pantryLevel: 7,
+      shops: { bakery: { level: 5, queue: [] } },
+      landmarks: { fountain: { stage: 8 }, gone: { stage: 1 } },
+      orders: { nextId: 9, slots: [{ order: { id: 8, items: [{ good: 'gone', qty: 1 }], coins: 5, xp: 1 } }, s.orders.slots[1]] },
+    });
+    const state = deserializeSave(raw, testContent);
+    expect(state.level).toBe(2);
+    expect(state.pantryLevel).toBe(2);
+    expect(state.shops.bakery.level).toBe(2);
+    expect(state.landmarks).toEqual({ fountain: { stage: 3 } });
+    expect(state.orders.slots[0]).toEqual({ refillAt: T0 });
+    expect(state.orders.slots[1]).toEqual(s.orders.slots[1]);
   });
 });

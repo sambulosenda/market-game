@@ -5,7 +5,46 @@
       "name": "Bakery",
       "lot": 0,
       "startsOwned": true,
-      "levels": [{ "queueSize": 2, "durationMultiplier": 1 }]
+      "levels": [
+        {
+          "cost": 0,
+          "queueSize": 2,
+          "durationMultiplier": 1
+        },
+        {
+          "cost": 250,
+          "queueSize": 3,
+          "durationMultiplier": 0.9
+        },
+        {
+          "cost": 1200,
+          "queueSize": 4,
+          "durationMultiplier": 0.8
+        }
+      ]
+    },
+    {
+      "id": "dairy",
+      "name": "Dairy",
+      "lot": 1,
+      "startsOwned": false,
+      "levels": [
+        {
+          "cost": 120,
+          "queueSize": 2,
+          "durationMultiplier": 1
+        },
+        {
+          "cost": 600,
+          "queueSize": 3,
+          "durationMultiplier": 0.9
+        },
+        {
+          "cost": 2400,
+          "queueSize": 4,
+          "durationMultiplier": 0.8
+        }
+      ]
     }
   ]
 }
