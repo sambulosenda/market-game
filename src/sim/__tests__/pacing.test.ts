@@ -60,6 +60,18 @@ describe('pacing check', () => {
     expect(typical).toEqual([at('shop', 'dairy', 1, 12)]);
   });
 
+  it('averages the two middle runs when the number of runs is even', () => {
+    const typical = medianMilestones([
+      run(at('shop', 'dairy', 1, 8), at('shop', 'cafe', 6, 200)),
+      run(at('shop', 'dairy', 2, 12), at('shop', 'cafe', 7, 260)),
+      run(at('shop', 'dairy', 2, 13)),
+      run(at('shop', 'dairy', 4, 50)),
+    ]);
+    // The café was reached by only half the runs, so its typical run never reaches it.
+    expect(typical).toEqual([at('shop', 'dairy', 2, 12.5)]);
+    expect(medianMilestones([run(at('shop', 'dairy', 2, 10)), run()])).toEqual([]);
+  });
+
   it('allows 20% on play time and a range on days', () => {
     const rows = checkPacing(
       [at('shop', 'dairy', 1, 12), at('shop', 'flowers', 1, 35), at('shop', 'cafe', 8, 300)],

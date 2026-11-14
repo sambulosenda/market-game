@@ -39,18 +39,20 @@ export function medianMilestones(results: SimResult[]): Milestone[] {
   }
   const middle = (values: number[]) => {
     const sorted = [...values, ...Array(results.length - values.length).fill(Infinity)].sort((a, b) => a - b);
-    return sorted[Math.floor((sorted.length - 1) / 2)];
+    const upper = Math.floor(sorted.length / 2);
+    // With an even number of runs, the mean of the two central values. One of them missing keeps it Infinity.
+    return sorted.length % 2 ? sorted[upper] : (sorted[upper - 1] + sorted[upper]) / 2;
   };
   const out: Milestone[] = [];
   for (const hits of keys.values()) {
-    const day = middle(hits.map((m) => m.day));
+    const day = Math.ceil(middle(hits.map((m) => m.day)));
     if (!Number.isFinite(day)) continue;
     out.push({
       kind: hits[0].kind,
       id: hits[0].id,
       day,
-      playMinutes: middle(hits.map((m) => m.playMinutes)),
-      coins: middle(hits.map((m) => m.coins)),
+      playMinutes: Math.round(middle(hits.map((m) => m.playMinutes)) * 10) / 10,
+      coins: Math.round(middle(hits.map((m) => m.coins))),
     });
   }
   return out.sort((a, b) => a.playMinutes - b.playMinutes);
