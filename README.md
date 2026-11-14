@@ -2,7 +2,7 @@
 
 A cozy idle mobile game: start with one bread stall on a quiet town square and grow it into a full street of shops. Expo + React Native + TypeScript, iOS and Android, no game engine.
 
-This build is the core loop: one bakery on the painted street. Bake, close the app, come back, collect.
+This build is milestone 1: the bakery and the dairy, the order board, levels, the pantry, shop upgrades and the fountain to restore. Make goods, fill orders for coins and XP, and spend the coins on growing the street.
 
 ## Run it on an iPhone
 
@@ -41,7 +41,8 @@ npm run build:art        # rebuild assets/art from the 1024px originals (see Art
 | `src/store` | A zustand store around the core that saves to MMKV after every change. |
 | `src/scene` | The Skia street: scrolling, parallax, lots and in-scene indicators. |
 | `src/art` | `manifest.ts` (generated) lists every image with its size in points; `index.ts` looks art up by good or shop id. |
-| `src/ui` | React Native views on top of the canvas, plus `strings.ts` for all player-facing text. |
+| `src/ui` | React Native views on top of the canvas: the top bar, the order board, sheets and pop-ups, plus `strings.ts` for all player-facing text. |
+| `src/ui/kit` | The interface kit: text, buttons, panels, the bottom sheet, pop-ups, toasts. Screens are built only from these. |
 | `src/app` | Expo Router routes. |
 
 ## Art

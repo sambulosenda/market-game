@@ -15,12 +15,12 @@ import { getShopAnchor, type Point } from '../../scene/anchors';
 import { onGameEvents } from '../../store';
 import { GoodIcon } from '../GoodIcon';
 import { land, landAll, splitFlights, takeOff } from './fxStore';
+import { centreOf, type Measurable, originOf } from './measure';
 
 const FLIGHT_MS = 400;
 const STAGGER_MS = 70;
 const ICON = 36;
 
-type Measurable = { measureInWindow(cb: (x: number, y: number, w: number, h: number) => void): void };
 let pantryTarget: Measurable | null = null;
 
 /** The pantry registers the icon that collected goods fly to. */
@@ -28,14 +28,14 @@ export function setPantryTarget(node: Measurable | null) {
   pantryTarget = node;
 }
 
-function centreOf(node: Measurable | null): Promise<Point | null> {
-  return new Promise((resolve) => {
-    if (!node) return resolve(null);
-    node.measureInWindow((x, y, w, h) => resolve({ x: x + w / 2, y: y + h / 2 }));
-  });
-}
-
-type Flight = { id: number; good: string; qty: number; from: Point; to: Point; delay: number };
+type Flight = {
+  id: number;
+  good: string;
+  qty: number;
+  from: Point;
+  to: Point;
+  delay: number;
+};
 
 /**
  * Draws collected goods flying from their shop to the pantry icon, above
@@ -56,21 +56,23 @@ export function CollectFx() {
         const { shop, good, qty } = event;
         // Hold the counter back now, in the same tick as the collect, so it never flashes the new total.
         takeOff(good, qty);
-        Promise.all([getShopAnchor(shop), centreOf(pantryTarget), originOf(layer.current)]).then(([from, to, origin]) => {
-          if (!from || !to || !origin) return land(good, qty);
-          const parts = splitFlights(qty);
-          setFlights((current) => [
-            ...current,
-            ...parts.map((part, i) => ({
-              id: nextId.current++,
-              good,
-              qty: part,
-              from: { x: from.x - origin.x, y: from.y - origin.y },
-              to: { x: to.x - origin.x, y: to.y - origin.y },
-              delay: i * STAGGER_MS,
-            })),
-          ]);
-        });
+        Promise.all([getShopAnchor(shop), centreOf(pantryTarget), originOf(layer.current)]).then(
+          ([from, to, origin]) => {
+            if (!from || !to || !origin) return land(good, qty);
+            const parts = splitFlights(qty);
+            setFlights((current) => [
+              ...current,
+              ...parts.map((part, i) => ({
+                id: nextId.current++,
+                good,
+                qty: part,
+                from: { x: from.x - origin.x, y: from.y - origin.y },
+                to: { x: to.x - origin.x, y: to.y - origin.y },
+                delay: i * STAGGER_MS,
+              })),
+            ]);
+          },
+        );
       }
     });
     return () => {
@@ -91,13 +93,6 @@ export function CollectFx() {
       ))}
     </View>
   );
-}
-
-function originOf(node: Measurable | null): Promise<Point | null> {
-  return new Promise((resolve) => {
-    if (!node) return resolve(null);
-    node.measureInWindow((x, y) => resolve({ x, y }));
-  });
 }
 
 function FlyingGood({ flight, onLanded }: { flight: Flight; onLanded: (flight: Flight) => void }) {

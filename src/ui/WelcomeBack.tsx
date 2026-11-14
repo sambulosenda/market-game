@@ -1,47 +1,34 @@
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { content } from '../content';
 import { gameStore, useGame } from '../store';
-import { Bouncy } from './Bouncy';
 import { GoodIcon } from './GoodIcon';
+import { Button, Popup, Txt } from './kit';
 import { strings } from './strings';
-import { colors } from './theme';
+import { space } from './theme';
 
-/** Lists what finished while the player was away. A simple first pass at T4.7. */
+const close = () => gameStore.getState().dismissWelcomeBack();
+
+/** Lists what finished while the player was away. */
 export function WelcomeBack() {
   const summary = useGame((s) => s.welcomeBack);
   if (!summary) return null;
-  const close = () => gameStore.getState().dismissWelcomeBack();
   return (
-    <Modal transparent animationType="fade" onRequestClose={close}>
-      <View style={styles.backdrop}>
-        <View style={styles.card}>
-          <Text style={styles.title}>{strings.welcomeBackTitle}</Text>
-          <Text style={styles.body}>{strings.welcomeBackBody}</Text>
-          {Object.entries(summary.finished).map(([good, n]) => (
-            <View key={good} style={styles.row}>
-              <GoodIcon good={good} size={32} />
-              <Text style={styles.item}>
-                {content.goods[good]?.name ?? good} × {n}
-              </Text>
-            </View>
-          ))}
-          <Bouncy accessibilityRole="button" style={styles.button} onPress={close}>
-            <Text style={styles.buttonText}>{strings.ok}</Text>
-          </Bouncy>
+    <Popup title={strings.welcomeBackTitle} onClose={close} footer={<Button label={strings.ok} onPress={close} />}>
+      <Txt soft style={styles.centre}>
+        {strings.welcomeBackBody}
+      </Txt>
+      {Object.entries(summary.finished).map(([good, n]) => (
+        <View key={good} style={styles.row}>
+          <GoodIcon good={good} size={32} />
+          <Txt variant="label">{strings.goodTimes(content.goods[good]?.name ?? good, n)}</Txt>
         </View>
-      </View>
-    </Modal>
+      ))}
+    </Popup>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(40,25,15,0.4)', justifyContent: 'center', padding: 32 },
-  card: { backgroundColor: colors.panel, borderRadius: 20, padding: 24, gap: 8 },
-  title: { fontSize: 24, fontWeight: '700', color: colors.ink },
-  body: { fontSize: 16, color: colors.inkSoft, marginBottom: 4 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  item: { fontSize: 18, color: colors.ink, fontWeight: '600' },
-  button: { marginTop: 12, backgroundColor: colors.button, borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
-  buttonText: { color: colors.buttonText, fontSize: 17, fontWeight: '700' },
+  centre: { textAlign: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.md },
 });

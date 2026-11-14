@@ -1,30 +1,51 @@
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useStore } from 'zustand';
 
 import { Street } from '@/scene/Street';
-import { BakePanel } from '@/ui/BakePanel';
 import { CollectFx } from '@/ui/fx/CollectFx';
-import { PantryBar } from '@/ui/PantryBar';
+import { RewardFx } from '@/ui/fx/RewardFx';
+import { Hud } from '@/ui/Hud';
+import { Toasts } from '@/ui/kit';
+import { LandmarkSheet } from '@/ui/LandmarkSheet';
+import { LevelUpPopup } from '@/ui/LevelUpPopup';
+import { OrderBoard } from '@/ui/OrderBoard';
+import { PantrySheet } from '@/ui/PantrySheet';
+import { ShopSheet } from '@/ui/ShopSheet';
 import { colors } from '@/ui/theme';
+import { uiStore } from '@/ui/uiStore';
 import { useAppLifecycle } from '@/ui/useAppLifecycle';
+import { useGameFeedback } from '@/ui/useGameFeedback';
 import { WelcomeBack } from '@/ui/WelcomeBack';
 
+/**
+ * The one screen of the game: the street with the order board under it.
+ * Sheets, effects and pop-ups are layers above, in that order.
+ */
 export default function StreetScreen() {
   useAppLifecycle();
+  useGameFeedback();
+  const sheet = useStore(uiStore, (s) => s.sheet);
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-      <PantryBar />
-      <Street />
-      <View style={styles.panel}>
-        <BakePanel shopId="bakery" />
-      </View>
+    <View style={styles.root}>
+      <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+        <Hud />
+        <Street />
+        <OrderBoard />
+      </SafeAreaView>
+      {sheet?.kind === 'shop' && <ShopSheet key={sheet.id} shopId={sheet.id} />}
+      {sheet?.kind === 'landmark' && <LandmarkSheet key={sheet.id} landmarkId={sheet.id} />}
+      {sheet?.kind === 'pantry' && <PantrySheet />}
       <CollectFx />
+      <RewardFx />
+      <LevelUpPopup />
       <WelcomeBack />
-    </SafeAreaView>
+      <Toasts />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.panel },
-  panel: { flex: 1 },
+  root: { flex: 1, backgroundColor: colors.panel },
+  safe: { flex: 1 },
 });
