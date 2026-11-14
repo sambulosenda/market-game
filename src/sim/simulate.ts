@@ -80,8 +80,9 @@ export function simulate(content: Content, options: SimOptions): SimResult {
   let state = createInitialState(content, 0, seed);
   let played = 0;
   const milestones: Milestone[] = [];
-  const mark = (kind: Milestone['kind'], id: string, day: number) =>
-    milestones.push({ kind, id, day, playMinutes: Math.round((played / MIN) * 10) / 10, coins: state.wallet.coins });
+  // `coins` is the balance right after the purchase or the level up, not at the end of the bot's turn.
+  const mark = (kind: Milestone['kind'], id: string, day: number, coins: number) =>
+    milestones.push({ kind, id, day, playMinutes: Math.round((played / MIN) * 10) / 10, coins });
   const samples: Sample[] = [];
   const act = (result: ActionResult): boolean => {
     if (result.ok) state = result.state;
@@ -92,18 +93,20 @@ export function simulate(content: Content, options: SimOptions): SimResult {
     for (const session of plan(day)) {
       const start = (day - 1) * DAY + session.atHour * HOUR;
       for (let t = start; t < start + session.minutes * MIN; t += tickSec * SEC) {
-        const levelBefore = state.level;
         state = refreshOrders(state, content, t);
 
         for (const shopId of Object.keys(state.shops)) act(collect(state, content, shopId, t));
         // Spend before filling orders, so goods saved for a landmark go to the landmark.
-        for (const bought of spend(state, content, t, act)) mark(bought.kind, bought.id, day);
+        for (const bought of spend(state, content, t, act)) mark(bought.kind, bought.id, day, bought.coins);
         for (const slot of [...state.orders.slots]) {
-          if ('order' in slot) act(fillOrder(state, content, slot.order.id, t));
+          if (!('order' in slot)) continue;
+          const levelBefore = state.level;
+          act(fillOrder(state, content, slot.order.id, t));
+          for (let level = levelBefore + 1; level <= state.level; level++)
+            mark('level', String(level), day, state.wallet.coins);
         }
         startBatches(state, content, t, act);
 
-        for (let level = levelBefore + 1; level <= state.level; level++) mark('level', String(level), day);
         played += tickSec * SEC;
         if (stopAtTopLevel && state.level >= content.levels.length) return { milestones, samples, state, days: day };
       }
@@ -114,10 +117,11 @@ export function simulate(content: Content, options: SimOptions): SimResult {
 }
 
 type Act = (result: ActionResult) => boolean;
+type Bought = { kind: 'shop' | 'landmark'; id: string; coins: number };
 
 /** Spends coins in the order a sensible player would: new shops, then landmarks, then upgrades. */
-function spend(state: GameState, content: Content, t: number, act: Act): { kind: 'shop' | 'landmark'; id: string }[] {
-  const done: { kind: 'shop' | 'landmark'; id: string }[] = [];
+function spend(state: GameState, content: Content, t: number, act: Act): Bought[] {
+  const done: Bought[] = [];
   let current = state;
   const run = (result: ActionResult) => {
     const ok = act(result);
@@ -129,7 +133,8 @@ function spend(state: GameState, content: Content, t: number, act: Act): { kind:
   let saving = 0;
   for (const shop of Object.values(content.shops)) {
     if (current.shops[shop.id] || current.level < content.unlockLevel.shops[shop.id]) continue;
-    if (run(buyShop(current, content, shop.id, t))) done.push({ kind: 'shop', id: shop.id });
+    if (run(buyShop(current, content, shop.id, t)))
+      done.push({ kind: 'shop', id: shop.id, coins: current.wallet.coins });
     else saving += shop.levels[0].cost;
   }
   for (const landmark of Object.values(content.landmarks)) {
@@ -138,7 +143,7 @@ function spend(state: GameState, content: Content, t: number, act: Act): { kind:
     if (!stage) continue;
     if (run(restoreLandmark(current, content, landmark.id, t))) {
       if (landmarkStage(current, landmark.id) >= landmark.stages.length)
-        done.push({ kind: 'landmark', id: landmark.id });
+        done.push({ kind: 'landmark', id: landmark.id, coins: current.wallet.coins });
     } else saving += stage.coins;
   }
 
