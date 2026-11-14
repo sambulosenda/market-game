@@ -106,6 +106,17 @@ describe('order generator', () => {
     }
   });
 
+  it('never asks for more of a good than its own limit', () => {
+    const capped = {
+      ...testContent,
+      goods: { ...testContent.goods, loaf: { ...testContent.goods.loaf, maxOrderQty: 1 } },
+    };
+    for (let seed = 1; seed <= 60; seed++) {
+      const s = createInitialState(capped, T0, seed);
+      for (const o of orders(s)) expect(o.items[0]).toEqual({ good: 'loaf', qty: 1 });
+    }
+  });
+
   it('respects order weights', () => {
     const tilted = {
       ...testContent,

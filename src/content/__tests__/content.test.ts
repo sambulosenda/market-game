@@ -24,9 +24,48 @@ function problemsFor(override: Partial<RawContent>): string[] {
 describe('bundled content', () => {
   it('is valid', () => {
     const content = loadContent(raw);
-    expect(Object.keys(content.shops)).toEqual(['bakery', 'dairy']);
     expect(content.levels).toHaveLength(25);
-    expect(content.unlockLevel.shops).toEqual({ bakery: 1, dairy: 3 });
+  });
+
+  it('has the v1 content: 5 shops with 8 goods each, and 3 landmarks, opening at the planned levels', () => {
+    const content = loadContent(raw);
+    expect(content.unlockLevel.shops).toEqual({ bakery: 1, dairy: 3, flowers: 6, preserves: 10, cafe: 15 });
+    expect(content.unlockLevel.landmarks).toEqual({ fountain: 5, clocktower: 12, bandstand: 20 });
+    expect(Object.keys(content.goods)).toHaveLength(40);
+    for (const shop of Object.keys(content.shops))
+      expect(
+        Object.values(content.recipes).filter((r) => r.shop === shop),
+        shop,
+      ).toHaveLength(8);
+    expect(Object.values(content.landmarks).map((l) => l.bonus)).toEqual([
+      { type: 'order_coins', percent: 10 },
+      { type: 'batch_speed', percent: 10 },
+      { type: 'order_slots', slots: 1 },
+    ]);
+  });
+
+  it('never unlocks a recipe before every shop that supplies its inputs is open', () => {
+    const content = loadContent(raw);
+    const makerOf = Object.fromEntries(Object.values(content.recipes).map((r) => [r.output, r]));
+    for (const recipe of Object.values(content.recipes)) {
+      for (const input of recipe.inputs) {
+        expect(content.unlockLevel.recipes[recipe.id], `${recipe.id} needs ${input.good}`).toBeGreaterThanOrEqual(
+          content.unlockLevel.recipes[makerOf[input.good].id],
+        );
+      }
+    }
+  });
+
+  it('only asks landmarks for goods unlocked by the time the landmark is', () => {
+    const content = loadContent(raw);
+    for (const landmark of Object.values(content.landmarks)) {
+      for (const stage of landmark.stages) {
+        for (const item of stage.goods)
+          expect(content.unlockLevel.recipes[item.good], `${landmark.id} needs ${item.good}`).toBeLessThanOrEqual(
+            content.unlockLevel.landmarks[landmark.id],
+          );
+      }
+    }
   });
 
   it('keeps every timer in the first 15 minutes at 2 minutes or less', () => {
@@ -50,9 +89,7 @@ describe('bundled content', () => {
 describe('content validation', () => {
   it('reports schema errors with the file and path', () => {
     const bad = { recipes: [{ ...recipes.recipes[0], durationSec: -5 }] };
-    expect(problemsFor({ recipes: bad })).toEqual([
-      expect.stringMatching(/^recipes\.json: recipes\.0\.durationSec: /),
-    ]);
+    expect(problemsFor({ recipes: bad })).toEqual([expect.stringMatching(/^recipes\.json: recipes\.0\.durationSec: /)]);
   });
 
   it('rejects timers longer than 4 hours', () => {
@@ -99,7 +136,10 @@ describe('content validation', () => {
     expect(problemsFor({ recipes: bad })).toContain('recipes.json: recipe "toast": unknown shop "constructor"');
     const okGoods = { goods: [...goods.goods, { id: 'constructor', name: 'Odd', value: 1, xp: 0 }] };
     const okRecipes = {
-      recipes: [...recipes.recipes, { id: 'constructor', shop: 'bakery', output: 'constructor', inputs: [], durationSec: 10 }],
+      recipes: [
+        ...recipes.recipes,
+        { id: 'constructor', shop: 'bakery', output: 'constructor', inputs: [], durationSec: 10 },
+      ],
     };
     const okLevels = {
       levels: levels.levels.map((l, i) =>
@@ -116,9 +156,9 @@ describe('content validation', () => {
     expect(problemsFor({ levels: edit(2, () => ({ xp: 1 })) })).toEqual([
       "levels.json: level 3: xp must be more than level 2's",
     ]);
-    expect(problemsFor({ levels: edit(1, (l) => ({ unlocks: { ...l.unlocks, recipes: ['scones', 'loaf'] } })) })).toEqual([
-      'levels.json: level 2: recipe "loaf" is already unlocked at level 1',
-    ]);
+    expect(
+      problemsFor({ levels: edit(1, (l) => ({ unlocks: { ...l.unlocks, recipes: ['scones', 'loaf'] } })) }),
+    ).toEqual(['levels.json: level 2: recipe "loaf" is already unlocked at level 1']);
     expect(problemsFor({ levels: edit(1, (l) => ({ unlocks: { ...l.unlocks, recipes: [] } })) })).toEqual([
       'levels.json: recipe "scones" is never unlocked',
     ]);
@@ -136,21 +176,20 @@ describe('content validation', () => {
   });
 
   it('checks shops, landmarks and the economy tables', () => {
-    const [bakery, dairy] = shops.shops;
-    expect(problemsFor({ shops: { shops: [bakery, { ...dairy, lot: 2 }] } })).toEqual([
+    const [bakery, dairy, ...others] = shops.shops;
+    expect(problemsFor({ shops: { shops: [bakery, { ...dairy, lot: 2 }, ...others] } })).toEqual([
       'landmarks.json: landmark "fountain": lot 2 is already taken by "dairy"',
     ]);
     const paid = { ...bakery, levels: [{ ...bakery.levels[0], cost: 5 }, ...bakery.levels.slice(1)] };
-    expect(problemsFor({ shops: { shops: [paid, dairy] } })).toEqual([
+    expect(problemsFor({ shops: { shops: [paid, dairy, ...others] } })).toEqual([
       'shops.json: shop "bakery": starts owned, so its level 1 cost must be 0',
     ]);
-    expect(problemsFor({ shops: { shops: [{ ...bakery, levels: bakery.levels.slice(0, 1) }, dairy] } })).toEqual([
-      'recipes.json: recipe "croissant": needs shop level 2, but "bakery" has 1',
-      'recipes.json: recipe "cheese_twist": needs shop level 2, but "bakery" has 1',
-    ]);
-    const fountain = landmarks.landmarks[0];
+    expect(
+      problemsFor({ shops: { shops: [{ ...bakery, levels: bakery.levels.slice(0, 2) }, dairy, ...others] } }),
+    ).toEqual(['recipes.json: recipe "celebration_cake": needs shop level 3, but "bakery" has 2']);
+    const [fountain, ...otherLandmarks] = landmarks.landmarks;
     const odd = { ...fountain, stages: [{ coins: 1, goods: [{ good: 'jam', qty: 1 }] }, ...fountain.stages.slice(1)] };
-    expect(problemsFor({ landmarks: { landmarks: [odd] } })).toEqual([
+    expect(problemsFor({ landmarks: { landmarks: [odd, ...otherLandmarks] } })).toEqual([
       'landmarks.json: landmark "fountain": stage 1: unknown good "jam"',
     ]);
     const orders = { ...economy.orders, kinds: [{ minLevel: 2, weights: [0, 0, 0] }] };

@@ -33,6 +33,8 @@ export const goodSchema = z.strictObject({
   xp: z.number().int().nonnegative(),
   /** How often orders ask for this good, relative to others. */
   orderWeight: z.number().positive().default(1),
+  /** The most of this good one order asks for, for goods that take long to make. Without it, only the level's limit applies. */
+  maxOrderQty: z.number().int().positive().optional(),
 });
 
 export const recipeSchema = z.strictObject({

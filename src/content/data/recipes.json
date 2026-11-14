@@ -55,6 +55,40 @@
       "shopLevel": 2
     },
     {
+      "id": "jam_tart",
+      "shop": "bakery",
+      "output": "jam_tart",
+      "inputs": [
+        {
+          "good": "strawberry_jam",
+          "qty": 1
+        }
+      ],
+      "durationSec": 900,
+      "shopLevel": 2
+    },
+    {
+      "id": "celebration_cake",
+      "shop": "bakery",
+      "output": "celebration_cake",
+      "inputs": [
+        {
+          "good": "butter",
+          "qty": 1
+        },
+        {
+          "good": "cream",
+          "qty": 1
+        },
+        {
+          "good": "strawberry_jam",
+          "qty": 1
+        }
+      ],
+      "durationSec": 3600,
+      "shopLevel": 3
+    },
+    {
       "id": "milk",
       "shop": "dairy",
       "output": "milk",
@@ -104,6 +138,393 @@
       ],
       "durationSec": 150,
       "shopLevel": 2
+    },
+    {
+      "id": "herb_cheese",
+      "shop": "dairy",
+      "output": "herb_cheese",
+      "inputs": [
+        {
+          "good": "cheese",
+          "qty": 1
+        },
+        {
+          "good": "lavender",
+          "qty": 1
+        }
+      ],
+      "durationSec": 1500,
+      "shopLevel": 2
+    },
+    {
+      "id": "honey_yoghurt",
+      "shop": "dairy",
+      "output": "honey_yoghurt",
+      "inputs": [
+        {
+          "good": "yoghurt",
+          "qty": 1
+        },
+        {
+          "good": "honey",
+          "qty": 1
+        }
+      ],
+      "durationSec": 1200,
+      "shopLevel": 3
+    },
+    {
+      "id": "cheese_board",
+      "shop": "dairy",
+      "output": "cheese_board",
+      "inputs": [
+        {
+          "good": "cheese",
+          "qty": 1
+        },
+        {
+          "good": "bread_rolls",
+          "qty": 1
+        },
+        {
+          "good": "chutney",
+          "qty": 1
+        }
+      ],
+      "durationSec": 2400,
+      "shopLevel": 3
+    },
+    {
+      "id": "tulips",
+      "shop": "flowers",
+      "output": "tulips",
+      "inputs": [],
+      "durationSec": 300
+    },
+    {
+      "id": "roses",
+      "shop": "flowers",
+      "output": "roses",
+      "inputs": [],
+      "durationSec": 480
+    },
+    {
+      "id": "lavender",
+      "shop": "flowers",
+      "output": "lavender",
+      "inputs": [],
+      "durationSec": 600
+    },
+    {
+      "id": "sunflowers",
+      "shop": "flowers",
+      "output": "sunflowers",
+      "inputs": [],
+      "durationSec": 900
+    },
+    {
+      "id": "posy",
+      "shop": "flowers",
+      "output": "posy",
+      "inputs": [
+        {
+          "good": "tulips",
+          "qty": 1
+        },
+        {
+          "good": "roses",
+          "qty": 1
+        }
+      ],
+      "durationSec": 600
+    },
+    {
+      "id": "lavender_sachet",
+      "shop": "flowers",
+      "output": "lavender_sachet",
+      "inputs": [
+        {
+          "good": "lavender",
+          "qty": 1
+        }
+      ],
+      "durationSec": 720,
+      "shopLevel": 2
+    },
+    {
+      "id": "bouquet",
+      "shop": "flowers",
+      "output": "bouquet",
+      "inputs": [
+        {
+          "good": "roses",
+          "qty": 1
+        },
+        {
+          "good": "sunflowers",
+          "qty": 1
+        },
+        {
+          "good": "lavender",
+          "qty": 1
+        }
+      ],
+      "durationSec": 1200,
+      "shopLevel": 2
+    },
+    {
+      "id": "gift_basket",
+      "shop": "flowers",
+      "output": "gift_basket",
+      "inputs": [
+        {
+          "good": "bouquet",
+          "qty": 1
+        },
+        {
+          "good": "shortbread",
+          "qty": 1
+        },
+        {
+          "good": "strawberry_jam",
+          "qty": 1
+        }
+      ],
+      "durationSec": 2700,
+      "shopLevel": 3
+    },
+    {
+      "id": "strawberry_jam",
+      "shop": "preserves",
+      "output": "strawberry_jam",
+      "inputs": [],
+      "durationSec": 1200
+    },
+    {
+      "id": "marmalade",
+      "shop": "preserves",
+      "output": "marmalade",
+      "inputs": [],
+      "durationSec": 1800
+    },
+    {
+      "id": "honey",
+      "shop": "preserves",
+      "output": "honey",
+      "inputs": [],
+      "durationSec": 2700
+    },
+    {
+      "id": "chutney",
+      "shop": "preserves",
+      "output": "chutney",
+      "inputs": [],
+      "durationSec": 2400
+    },
+    {
+      "id": "lemon_curd",
+      "shop": "preserves",
+      "output": "lemon_curd",
+      "inputs": [
+        {
+          "good": "butter",
+          "qty": 1
+        }
+      ],
+      "durationSec": 1800
+    },
+    {
+      "id": "lavender_honey",
+      "shop": "preserves",
+      "output": "lavender_honey",
+      "inputs": [
+        {
+          "good": "honey",
+          "qty": 1
+        },
+        {
+          "good": "lavender",
+          "qty": 1
+        }
+      ],
+      "durationSec": 2700,
+      "shopLevel": 2
+    },
+    {
+      "id": "fudge",
+      "shop": "preserves",
+      "output": "fudge",
+      "inputs": [
+        {
+          "good": "butter",
+          "qty": 1
+        },
+        {
+          "good": "cream",
+          "qty": 1
+        }
+      ],
+      "durationSec": 3600,
+      "shopLevel": 2
+    },
+    {
+      "id": "preserve_gift_set",
+      "shop": "preserves",
+      "output": "preserve_gift_set",
+      "inputs": [
+        {
+          "good": "strawberry_jam",
+          "qty": 1
+        },
+        {
+          "good": "marmalade",
+          "qty": 1
+        },
+        {
+          "good": "honey",
+          "qty": 1
+        }
+      ],
+      "durationSec": 5400,
+      "shopLevel": 3
+    },
+    {
+      "id": "coffee",
+      "shop": "cafe",
+      "output": "coffee",
+      "inputs": [],
+      "durationSec": 1800
+    },
+    {
+      "id": "tea",
+      "shop": "cafe",
+      "output": "tea",
+      "inputs": [],
+      "durationSec": 2700
+    },
+    {
+      "id": "latte",
+      "shop": "cafe",
+      "output": "latte",
+      "inputs": [
+        {
+          "good": "coffee",
+          "qty": 1
+        },
+        {
+          "good": "milk",
+          "qty": 1
+        }
+      ],
+      "durationSec": 3600
+    },
+    {
+      "id": "hot_chocolate",
+      "shop": "cafe",
+      "output": "hot_chocolate",
+      "inputs": [
+        {
+          "good": "milk",
+          "qty": 1
+        },
+        {
+          "good": "cream",
+          "qty": 1
+        }
+      ],
+      "durationSec": 4500
+    },
+    {
+      "id": "breakfast_plate",
+      "shop": "cafe",
+      "output": "breakfast_plate",
+      "inputs": [
+        {
+          "good": "loaf",
+          "qty": 1
+        },
+        {
+          "good": "butter",
+          "qty": 1
+        },
+        {
+          "good": "marmalade",
+          "qty": 1
+        }
+      ],
+      "durationSec": 5400,
+      "shopLevel": 2
+    },
+    {
+      "id": "cream_tea",
+      "shop": "cafe",
+      "output": "cream_tea",
+      "inputs": [
+        {
+          "good": "scones",
+          "qty": 1
+        },
+        {
+          "good": "cream",
+          "qty": 1
+        },
+        {
+          "good": "strawberry_jam",
+          "qty": 1
+        },
+        {
+          "good": "tea",
+          "qty": 1
+        }
+      ],
+      "durationSec": 7200,
+      "shopLevel": 2
+    },
+    {
+      "id": "afternoon_tea",
+      "shop": "cafe",
+      "output": "afternoon_tea",
+      "inputs": [
+        {
+          "good": "tea",
+          "qty": 1
+        },
+        {
+          "good": "shortbread",
+          "qty": 1
+        },
+        {
+          "good": "jam_tart",
+          "qty": 1
+        }
+      ],
+      "durationSec": 10800,
+      "shopLevel": 3
+    },
+    {
+      "id": "picnic_hamper",
+      "shop": "cafe",
+      "output": "picnic_hamper",
+      "inputs": [
+        {
+          "good": "loaf",
+          "qty": 1
+        },
+        {
+          "good": "cheese",
+          "qty": 1
+        },
+        {
+          "good": "strawberry_jam",
+          "qty": 1
+        },
+        {
+          "good": "bouquet",
+          "qty": 1
+        }
+      ],
+      "durationSec": 14400,
+      "shopLevel": 3
     }
   ]
 }
