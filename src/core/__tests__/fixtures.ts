@@ -102,6 +102,7 @@ export const testContent = loadContent({
         { minLevel: 2, max: 3 },
       ],
     },
+    tips: { base: 1, perLevel: 0.5 },
     daily: {
       goals: [
         {

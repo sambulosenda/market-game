@@ -1,4 +1,4 @@
-import { type Art, backgrounds, goods, landmarks, shops, signs, ui } from './manifest';
+import { type Art, backgrounds, customers, goods, landmarks, shops, signs, ui } from './manifest';
 
 export type { Art };
 export { backgrounds, ui };
@@ -7,6 +7,7 @@ const goodsByName: Record<string, Art | undefined> = goods;
 const shopsByName: Record<string, Art | undefined> = shops;
 const landmarksByName: Record<string, Art | undefined> = landmarks;
 const signsByName: Record<string, Art | undefined> = signs;
+const customersByName: Record<string, Art | undefined> = customers;
 
 /** The icon for a good, by content id. */
 export function goodArt(goodId: string): Art | undefined {
@@ -29,6 +30,11 @@ export function landmarkArt(landmarkId: string, stage: number): Art | undefined 
 
 export function signArt(shopId: string): Art | undefined {
   return signsByName[`sign_${shopId}`];
+}
+
+/** One of a walking customer's two drawings. `look` is 1 to 8. All of them face right. */
+export function customerArt(look: number, pose: 'stand' | 'step'): Art | undefined {
+  return customersByName[`customer_${String(look).padStart(2, '0')}_${pose}`];
 }
 
 export const emptyPlotArt: Art = shops.plot_empty;

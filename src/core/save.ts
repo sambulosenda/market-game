@@ -77,6 +77,7 @@ const saveSchema = z.object({
           'restore_landmark',
           'daily_goal',
           'daily_calendar',
+          'tip',
         ]),
         balance: z.number().int(),
       }),

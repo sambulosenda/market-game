@@ -74,6 +74,10 @@
       }
     ]
   },
+  "tips": {
+    "base": 1,
+    "perLevel": 0.5
+  },
   "daily": {
     "goals": [
       {

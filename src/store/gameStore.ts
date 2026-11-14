@@ -21,6 +21,7 @@ import {
   serializeSave,
   skipOrder,
   startBatch,
+  tipCustomer,
   upgradePantry,
   upgradeShop,
   type WelcomeBack,
@@ -54,6 +55,8 @@ export type GameStore = {
   claimDailyGoal(index: number): FailReason | null;
   /** Takes today's gift from the login calendar. */
   claimCalendarGift(): FailReason | null;
+  /** Takes a walking customer's tip. */
+  tipCustomer(): void;
   /** Refills order slots whose wait is over and sets new goals after midnight. Cheap, so screens call it as time passes. */
   refreshOrders(): void;
   /** Call when the app comes to the foreground (and once at launch). */
@@ -151,6 +154,7 @@ export function createGameStore({
         const t = now();
         return apply(claimCalendarGift(get().game, content, t, timezoneOffsetMin(t)));
       },
+      tipCustomer: () => void apply(tipCustomer(get().game, content, now())),
       refreshOrders: () => {
         const state = tick(get().game, now());
         if (state === get().game) return;
