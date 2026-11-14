@@ -1,0 +1,8 @@
+{
+  "recipes": [
+    { "id": "loaf", "shop": "bakery", "output": "loaf", "inputs": [], "durationSec": 30 },
+    { "id": "bread_rolls", "shop": "bakery", "output": "bread_rolls", "inputs": [], "durationSec": 45 },
+    { "id": "scones", "shop": "bakery", "output": "scones", "inputs": [], "durationSec": 90 },
+    { "id": "shortbread", "shop": "bakery", "output": "shortbread", "inputs": [], "durationSec": 120 }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "shops": [
+    {
+      "id": "bakery",
+      "name": "Bakery",
+      "lot": 0,
+      "startsOwned": true,
+      "levels": [{ "queueSize": 2, "durationMultiplier": 1 }]
+    }
+  ]
+}
