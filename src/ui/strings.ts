@@ -157,6 +157,18 @@ export const strings = {
     deleteConfirm: 'Delete everything',
   },
 
+  // Shop mastery: stars a good earns for being made
+  mastery: {
+    hint: (percent: number) => `Each star a good earns makes it ${percent}% quicker to make.`,
+    count: (made: number, nextAt: number) => `${made}/${nextAt}`,
+    earned: (good: string, stars: number, percent: number) =>
+      `${good} earned ${stars === 1 ? 'its first star' : `star ${stars}`}. Now ${percent}% quicker to make.`,
+    a11y: (m: { made: number; stars: number; maxStars: number; nextAt: number | null }) =>
+      m.nextAt === null
+        ? `All ${m.maxStars} stars earned`
+        : `${m.stars} of ${m.maxStars} stars, ${m.made} of ${m.nextAt} made for the next`,
+  },
+
   // Notifications sent while the player is away
   notifications: {
     channel: 'Reminders',

@@ -2,7 +2,7 @@
 
 A cozy idle mobile game: start with one bread stall on a quiet town square and grow it into a full street of shops. Expo + React Native + TypeScript, iOS and Android, no game engine.
 
-This build has the whole of version 1's content: 5 shops with 8 goods each, 3 landmarks to restore and 25 levels, with the order board, the pantry and shop upgrades. Make goods, fill orders for coins and XP, and spend the coins on growing the street.
+This build has the whole of version 1's content: 5 shops with 8 goods each, 3 landmarks to restore and 25 levels, with the order board, the pantry and shop upgrades, plus daily goals, walking customers who tip, and shop mastery (goods earn stars for being made, and each star makes them quicker to make). Make goods, fill orders for coins and XP, and spend the coins on growing the street.
 
 ## Run it on an iPhone
 
