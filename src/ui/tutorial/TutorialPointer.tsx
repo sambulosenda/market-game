@@ -25,6 +25,8 @@ import { measureTarget } from './targets';
 const W = 44;
 const H = 52;
 const GAP = 6;
+/** Over a button the arrow is drawn smaller, so it hides less of the card around the button. */
+const BUTTON_SCALE = 0.7;
 
 // A chunky arrow pointing down, its tip at the bottom centre.
 const arrow = Skia.PathBuilder.Make()
@@ -39,7 +41,7 @@ const arrow = Skia.PathBuilder.Make()
   .detach();
 
 /** Where the arrow goes, and which target that position was measured for. */
-type Spot = { key: string; x: number; y: number; flip: boolean };
+type Spot = { key: string; x: number; y: number; flip: boolean; scale: number };
 
 async function locate(target: TutorialTarget): Promise<{ point: Point; below: Point } | null> {
   if (target.kind === 'lot') {
@@ -80,7 +82,7 @@ export function TutorialPointer() {
       // Above the target, or below it when there is no room above.
       const flip = found.point.y - origin.y < H + GAP + 8;
       const at = flip ? found.below : found.point;
-      setSpot({ key, x: at.x - origin.x, y: at.y - origin.y, flip });
+      setSpot({ key, x: at.x - origin.x, y: at.y - origin.y, flip, scale: target.kind === 'lot' ? 1 : BUTTON_SCALE });
     });
     return () => {
       current = false;
@@ -103,8 +105,15 @@ export function TutorialPointer() {
   // A position measured for an earlier target is not shown for the next one.
   const shown = spot && spot.key === key ? spot : null;
   const flip = shown?.flip ?? false;
+  const scale = shown?.scale ?? 1;
+  // Scaled about the tip, so the tip stays the same distance from the target.
+  const tipShift = ((flip ? -1 : 1) * H * (1 - scale)) / 2;
   const style = useAnimatedStyle(() => ({
-    transform: [{ translateY: (flip ? 1 : -1) * bob.get() * 10 }, { rotate: flip ? '180deg' : '0deg' }],
+    transform: [
+      { translateY: (flip ? 1 : -1) * bob.get() * 10 * scale + tipShift },
+      { rotate: flip ? '180deg' : '0deg' },
+      { scale },
+    ],
   }));
 
   return (
