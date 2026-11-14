@@ -1,0 +1,8 @@
+{
+  "goods": [
+    { "id": "loaf", "name": "Loaf" },
+    { "id": "bread_rolls", "name": "Bread rolls" },
+    { "id": "scones", "name": "Scones" },
+    { "id": "shortbread", "name": "Shortbread" }
+  ]
+}
