@@ -27,9 +27,11 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@types/node": "^22.20.5",
     "@types/react": "~19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~58.0.4",
+    "sharp": "^0.35.5",
     "typescript": "~6.0.3",
     "vitest": "^5.1.0"
   },
@@ -43,7 +45,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
     "validate:content": "vitest run src/content",
-    "check": "npm run typecheck && npm run lint && npm test"
+    "check": "npm run typecheck && npm run lint && npm test",
+    "build:art": "node scripts/build-art.mjs"
   },
   "private": true
 }
