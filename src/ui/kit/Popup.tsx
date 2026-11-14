@@ -3,6 +3,7 @@ import { BackHandler, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated';
 
 import { colors, radius, space } from '../theme';
+import { useReduceMotion } from '../useReduceMotion';
 import { Txt } from './Txt';
 
 /** A card in the middle of the screen for news the player should see: a level-up, a welcome back. */
@@ -17,6 +18,7 @@ export function Popup({
   children: ReactNode;
   footer: ReactNode;
 }) {
+  const still = useReduceMotion();
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       onClose();
@@ -26,7 +28,7 @@ export function Popup({
   }, [onClose]);
   return (
     <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)} style={styles.backdrop}>
-      <Animated.View entering={ZoomIn.duration(220)} style={styles.card} accessibilityViewIsModal>
+      <Animated.View entering={still ? undefined : ZoomIn.duration(220)} style={styles.card} accessibilityViewIsModal>
         <Txt variant="title" style={styles.title} accessibilityRole="header">
           {title}
         </Txt>

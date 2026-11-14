@@ -99,6 +99,26 @@ export const strings = {
   welcomeBackBody: 'While you were away, your street made:',
   goodTimes: (name: string, n: number) => `${name} × ${n}`,
 
+  // Settings
+  settings: {
+    title: 'Settings',
+    music: 'Music',
+    sound: 'Sound effects',
+    haptics: 'Vibration',
+    notifications: 'Notifications',
+    reduceMotion: 'Reduce motion',
+    hints: {
+      notifications: 'A nudge when your goods are ready. Never at night.',
+      reduceMotion: 'Fewer moving effects. Buttons still respond to taps.',
+    } as Partial<Record<string, string>>,
+    deleteData: 'Delete my data',
+    deleteHint: 'Your game is saved on this device only.',
+    deleteTitle: 'Delete everything?',
+    deleteBody: 'Your street, coins, gems and settings will be gone for good. This cannot be undone.',
+    deleteKeep: 'Keep my street',
+    deleteConfirm: 'Delete everything',
+  },
+
   // Why an action did not happen
   fail: {
     queue_full: 'The queue is full.',
@@ -113,6 +133,12 @@ export const strings = {
 
   a11y: {
     street: 'The street. Swipe sideways to look around.',
+    settingsButton: 'Settings',
+    places: 'Places on the street',
+    shopForSale: (name: string, coins: number) => `${name}, not open yet. Costs ${coins} coins.`,
+    shopLocked: (name: string, level: number) => `${name}, opens at level ${level}`,
+    landmark: (name: string, done: number, total: number) => `${name}, ${done} of ${total} stages restored`,
+    landmarkLocked: (name: string, level: number) => `${name}, from level ${level}`,
     shopLot: (name: string, ready: number) => (ready > 0 ? `${name}, ${ready} ready to collect` : name),
     amount: {
       coins: (n: number) => `${n} ${plural(n, 'coin', 'coins')}`,

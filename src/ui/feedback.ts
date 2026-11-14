@@ -1,6 +1,5 @@
-import * as Haptics from 'expo-haptics';
-
 import type { FailReason } from '../core';
+import { haptics } from './haptics';
 import { failText } from './strings';
 import { toast } from './uiStore';
 
@@ -10,11 +9,11 @@ import { toast } from './uiStore';
  */
 export function report(failed: FailReason | null, onSuccess: 'success' | 'light' | 'none' = 'light'): boolean {
   if (failed) {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    haptics.warning();
     toast(failText(failed));
     return false;
   }
-  if (onSuccess === 'success') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  else if (onSuccess === 'light') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  if (onSuccess === 'success') haptics.success();
+  else if (onSuccess === 'light') haptics.light();
   return true;
 }
