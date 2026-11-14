@@ -29,6 +29,7 @@ export function createInitialState(content: Content, now: number, seed: number =
     daily: NO_DAILY,
     made: {},
     album: NO_ALBUM,
+    purchased: [],
     rng: seed >>> 0,
   };
   return refreshOrders(state, content, now);
@@ -87,6 +88,8 @@ export function reconcile(state: GameState, content: Content): GameState {
     pantry,
     made,
     album: reconcileAlbum(state, content),
+    // A product the content no longer has stays recorded, so it is never given twice if it returns.
+    purchased: [...new Set(state.purchased)],
     daily,
     pantryLevel: clamp(state.pantryLevel, 1, content.economy.pantry.levels.length),
     landmarks,

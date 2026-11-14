@@ -149,6 +149,20 @@ export const economySchema = z.strictObject({
     customerLooks: z.number().int().min(1),
     customerSetGems: z.number().int().nonnegative(),
   }),
+  /**
+   * What each app store product gives. The ids must match the products set up in the stores, and the
+   * prices live there, not here. A `once` product can be bought one time and is given back on restore.
+   */
+  products: z
+    .array(
+      z.strictObject({
+        id: z.string().min(1),
+        gems: z.number().int().nonnegative(),
+        coins: z.number().int().nonnegative(),
+        once: z.boolean(),
+      }),
+    )
+    .refine((list) => new Set(list.map((p) => p.id)).size === list.length, { message: 'product ids must be unique' }),
   gems: z.strictObject({
     /** Finishing a baking batch costs one gem for each of these minutes left, rounded up. */
     skipMinutesPerGem: z.number().positive(),

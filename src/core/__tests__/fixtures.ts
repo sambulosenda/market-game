@@ -106,6 +106,10 @@ export const testContent = loadContent({
     gems: { skipMinutesPerGem: 2, extraQueueSlotCosts: [3, 6] },
     tips: { base: 1, perLevel: 0.5 },
     collections: { goodsSetGems: 4, customerLooks: 3, customerSetGems: 6 },
+    products: [
+      { id: 'test.bundle', gems: 20, coins: 100, once: true },
+      { id: 'test.gems', gems: 10, coins: 0, once: false },
+    ],
     mastery: { starsAt: [3, 6, 10], speedPercentPerStar: 10 },
     daily: {
       goals: [

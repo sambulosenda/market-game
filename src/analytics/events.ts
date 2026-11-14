@@ -74,6 +74,9 @@ export function toAnalytics(events: GameEvent[], after: GameState, content: Cont
       case 'collectionSetClaimed':
         add('collection_set_claimed', { set: e.set, gems: e.gems });
         break;
+      case 'purchaseGranted':
+        // Sent as `purchase_made` by the shop, with the price.
+        break;
       case 'customerTipped':
         // Tips are frequent and small; only a new customer for the album is worth a row.
         if (e.newLook !== undefined) add('customer_met', { look: e.newLook });

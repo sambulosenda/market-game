@@ -161,6 +161,25 @@ export const strings = {
     deleteConfirm: 'Delete everything',
   },
 
+  // The gem shop
+  gemShop: {
+    title: 'Gem shop',
+    subtitle: 'Gems finish timers and add queue slots',
+    loading: 'Opening the shop…',
+    unreachable: 'The shop cannot be reached right now. Check your connection and try again.',
+    bundle: 'Starter bundle',
+    pack: 'Gems',
+    once: 'One per player',
+    owned: 'Owned',
+    thanks: 'Thank you! Your purchase has been added.',
+    failed: 'The purchase did not go through. You have not been charged.',
+    note: 'Everything in the game can be earned by playing. Purchases only save time.',
+    restore: 'Restore purchases',
+    restored: 'Your purchases have been restored.',
+    nothingToRestore: 'There was nothing to restore.',
+    restoreFailed: 'Purchases could not be restored. Try again later.',
+  },
+
   // The album of goods and customers
   album: {
     button: 'Album',
@@ -217,6 +236,9 @@ export const strings = {
   a11y: {
     street: 'The street. Swipe sideways to look around.',
     settingsButton: 'Settings',
+    gemShopButton: (gems: number) => `${gems} ${plural(gems, 'gem', 'gems')}. Open the gem shop`,
+    buyProduct: (name: string, gems: number, coins: number, price: string) =>
+      `Buy ${name}: ${[gems > 0 ? `${gems} gems` : '', coins > 0 ? `${coins} coins` : ''].filter(Boolean).join(' and ')}, for ${price}`,
     albumButton: (waiting: number) =>
       waiting > 0 ? `Album, ${waiting} ${plural(waiting, 'reward', 'rewards')} to claim` : 'Album',
     albumItem: (name: string, found: boolean) => (found ? `${name}, found` : `${name}, not found yet`),
