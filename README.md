@@ -31,7 +31,10 @@ npm run lint
 npm run validate:content # just the content config checks
 npm run build:art        # rebuild assets/art from the 1024px originals (see Art)
 npm run simulate         # balance report: when a typical player reaches each unlock (see Balance)
+npm run check            # type check, lint and tests together
 ```
+
+Every pull request runs the type check, the lint and the tests in GitHub Actions (`.github/workflows/ci.yml`).
 
 ## Layout
 
