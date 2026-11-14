@@ -82,7 +82,8 @@ function generateOrder(state: GameState, content: Content): { order: Order; rng:
   for (let k = 0; k < kindCount; k++) {
     const i = pickWeighted(pool.map((g) => content.goods[g].orderWeight), roll());
     const [good] = pool.splice(i, 1);
-    items.push({ good, qty: 1 + Math.floor(roll() * max) });
+    const most = Math.min(max, content.goods[good].maxOrderQty ?? max);
+    items.push({ good, qty: 1 + Math.floor(roll() * most) });
   }
   let xp = 0;
   for (const item of items) xp += item.qty * content.goods[item.good].xp;

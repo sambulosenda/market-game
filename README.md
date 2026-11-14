@@ -2,7 +2,7 @@
 
 A cozy idle mobile game: start with one bread stall on a quiet town square and grow it into a full street of shops. Expo + React Native + TypeScript, iOS and Android, no game engine.
 
-This build is milestone 1: the bakery and the dairy, the order board, levels, the pantry, shop upgrades and the fountain to restore. Make goods, fill orders for coins and XP, and spend the coins on growing the street.
+This build has the whole of version 1's content: 5 shops with 8 goods each, 3 landmarks to restore and 25 levels, with the order board, the pantry and shop upgrades. Make goods, fill orders for coins and XP, and spend the coins on growing the street.
 
 ## Run it on an iPhone
 
@@ -30,6 +30,7 @@ npm run typecheck
 npm run lint
 npm run validate:content # just the content config checks
 npm run build:art        # rebuild assets/art from the 1024px originals (see Art)
+npm run simulate         # balance report: when a typical player reaches each unlock (see Balance)
 npm run check            # type check, lint and tests together
 ```
 
@@ -43,10 +44,18 @@ Every pull request runs the type check, the lint and the tests in GitHub Actions
 | `src/content` | Content config as JSON (`data/`), its schema, and a loader that validates it and cross-checks references. No balance number is written in code. |
 | `src/store` | A zustand store around the core that saves to MMKV after every change. |
 | `src/scene` | The Skia street: scrolling, parallax, lots and in-scene indicators. |
+| `src/sim` | The balance simulator and the pacing targets. Not used by the app. |
 | `src/art` | `manifest.ts` (generated) lists every image with its size in points; `index.ts` looks art up by good or shop id. |
 | `src/ui` | React Native views on top of the canvas: the top bar, the order board, sheets and pop-ups, plus `strings.ts` for all player-facing text. |
+| `src/ui/tutorial` | The onboarding: a pure function that picks the next thing to point at from the game state, and the arrow that points. |
 | `src/ui/kit` | The interface kit: text, buttons, panels, the bottom sheet, pop-ups, toasts. Screens are built only from these. |
 | `src/app` | Expo Router routes. |
+
+## Balance
+
+Every balance number is in `src/content/data`. `npm run simulate` plays the real game core with a bot that behaves like an average player (45 minutes on day 1, then five 6-minute check-ins a day) and prints when each shop opens, each landmark is restored and each level is reached, next to the pacing targets from the PRD. It takes the median of several runs, because orders are random. A test runs the same check, so a change to the numbers that breaks a pacing target fails `npm test`.
+
+The bot and its play plan are in `src/sim/simulate.ts`, and the targets in `src/sim/pacing.ts`.
 
 ## Art
 

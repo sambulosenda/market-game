@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { HOUR, MIN, T0, testContent } from '../../core/__tests__/fixtures';
 import { CORRUPT_SAVE_KEY_PREFIX, createGameStore, type KeyValueStorage, SAVE_KEY } from '../gameStore';
+import { createSettingsStore, DEFAULT_SETTINGS, loadSettings, SETTINGS_KEY } from '../settings';
 
 function memoryStorage(): KeyValueStorage & { data: Map<string, string> } {
   const data = new Map<string, string>();
-  return { data, getString: (k) => data.get(k), set: (k, v) => void data.set(k, v) };
+  return { data, getString: (k) => data.get(k), set: (k, v) => void data.set(k, v), clearAll: () => data.clear() };
 }
 
 function setup(storage = memoryStorage()) {
@@ -130,5 +131,59 @@ describe('game store', () => {
     t.store.getState().pause();
     t.advance(HOUR);
     expect(t.relaunch().getState().welcomeBack).toBeNull();
+  });
+});
+
+describe('deleting all data', () => {
+  it('wipes the save and everything kept aside, and starts a new game', () => {
+    const storage = memoryStorage();
+    storage.set(`${CORRUPT_SAVE_KEY_PREFIX}1`, '{old');
+    const t = setup(storage);
+    t.store.getState().startBatch('bakery', 'loaf');
+    t.advance(HOUR);
+    t.store.getState().collect('bakery');
+    expect(t.store.getState().game.pantry).toEqual({ loaf: 1 });
+
+    t.store.getState().deleteAllData();
+    expect(t.store.getState().game.pantry).toEqual({});
+    expect(t.store.getState().game.createdAt).toBe(T0 + HOUR);
+    expect([...storage.data.keys()]).toEqual([SAVE_KEY]);
+    expect(t.relaunch().getState().game.pantry).toEqual({});
+  });
+});
+
+describe('settings', () => {
+  it('start at the defaults, with notifications off', () => {
+    const store = createSettingsStore(memoryStorage());
+    expect(store.getState()).toMatchObject(DEFAULT_SETTINGS);
+    expect(store.getState().notifications).toBe(false);
+    expect(store.getState().haptics).toBe(true);
+  });
+
+  it('apply at once and persist', () => {
+    const storage = memoryStorage();
+    const store = createSettingsStore(storage);
+    store.getState().set('haptics', false);
+    store.getState().set('reduceMotion', true);
+    expect(store.getState().haptics).toBe(false);
+    expect(createSettingsStore(storage).getState()).toMatchObject({ haptics: false, reduceMotion: true, sound: true });
+    expect(JSON.parse(storage.data.get(SETTINGS_KEY)!)).toEqual({ ...DEFAULT_SETTINGS, haptics: false, reduceMotion: true });
+  });
+
+  it('fall back to defaults when unreadable, and fill in settings added later', () => {
+    const storage = memoryStorage();
+    storage.set(SETTINGS_KEY, '{broken');
+    expect(loadSettings(storage)).toEqual(DEFAULT_SETTINGS);
+    storage.set(SETTINGS_KEY, '{"sound":false}');
+    expect(loadSettings(storage)).toEqual({ ...DEFAULT_SETTINGS, sound: false });
+  });
+
+  it('reset in memory after all data is deleted', () => {
+    const storage = memoryStorage();
+    const store = createSettingsStore(storage);
+    store.getState().set('music', false);
+    storage.clearAll();
+    store.getState().reset();
+    expect(store.getState().music).toBe(true);
   });
 });

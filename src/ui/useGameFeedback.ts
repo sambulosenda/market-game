@@ -1,7 +1,7 @@
-import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 
 import { onGameEvents } from '../store';
+import { haptics } from './haptics';
 import { closeSheet, queueLevelUp } from './uiStore';
 
 /** Turns game events into interface news: level-ups queue their pop-up, a bought shop closes its sheet. */
@@ -16,7 +16,7 @@ export function useGameFeedback() {
               gems: event.gems,
               unlocks: event.unlocks,
             });
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            haptics.success();
           }
           // The new shop appears on the street; show it.
           if (event.type === 'shopBought') closeSheet();

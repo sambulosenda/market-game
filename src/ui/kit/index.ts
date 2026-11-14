@@ -6,3 +6,4 @@ export { ProgressBar } from './ProgressBar';
 export { Sheet } from './Sheet';
 export { Toasts } from './Toasts';
 export { Txt } from './Txt';
+export { ToggleRow } from './ToggleRow';

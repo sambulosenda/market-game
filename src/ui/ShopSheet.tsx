@@ -19,6 +19,8 @@ import { GoodNeed } from './GoodNeed';
 import { Amount, Button, ProgressBar, Sheet, Txt, Well } from './kit';
 import { strings } from './strings';
 import { colors, radius, space, TAP } from './theme';
+import { targetIds } from './tutorial/steps';
+import { Target, useTargetRef } from './tutorial/targets';
 import { closeSheet } from './uiStore';
 import { useNow } from './useNow';
 
@@ -33,6 +35,7 @@ export function ShopSheet({ shopId }: { shopId: string }) {
 }
 
 function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
+  const closeRef = useTargetRef(targetIds.closeSheet);
   const now = useNow(500);
   const config = content.shops[shopId];
   const shop = game.shops[shopId];
@@ -48,6 +51,7 @@ function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
       title={config.name}
       subtitle={strings.shopLevel(shop.level, config.levels.length)}
       onClose={closeSheet}
+      closeRef={closeRef}
       footer={
         view.readyCount > 0 ? (
           <>
@@ -56,11 +60,13 @@ function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
                 {strings.pantryFull}
               </Txt>
             )}
-            <Button
-              label={strings.collect(view.readyCount)}
-              haptic={false}
-              onPress={() => report(gameStore.getState().collect(shopId), 'success')}
-            />
+            <Target id={targetIds.collect}>
+              <Button
+                label={strings.collect(view.readyCount)}
+                haptic={false}
+                onPress={() => report(gameStore.getState().collect(shopId), 'success')}
+              />
+            </Target>
           </>
         ) : null
       }
@@ -112,13 +118,14 @@ function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
       )}
       <View style={styles.recipes}>
         {recipesOf(shopId).map((recipe) => (
-          <RecipeRow
-            key={recipe.id}
-            recipe={recipe}
-            game={game}
-            durationSec={recipeDurationMs(content, recipe.id, level, speed) / 1000}
-            queueFull={queueFull}
-          />
+          <Target key={recipe.id} id={targetIds.recipe(recipe.id)}>
+            <RecipeRow
+              recipe={recipe}
+              game={game}
+              durationSec={recipeDurationMs(content, recipe.id, level, speed) / 1000}
+              queueFull={queueFull}
+            />
+          </Target>
         ))}
       </View>
 
@@ -225,6 +232,7 @@ function RecipeRow({
 }
 
 function ShopForSale({ shopId, game }: { shopId: string; game: GameState }) {
+  const closeRef = useTargetRef(targetIds.closeSheet);
   const config = content.shops[shopId];
   const unlocksAt = content.unlockLevel.shops[shopId];
   const locked = game.level < unlocksAt;
@@ -234,18 +242,21 @@ function ShopForSale({ shopId, game }: { shopId: string; game: GameState }) {
       title={config.name}
       subtitle={locked ? strings.shopLocked(unlocksAt) : strings.shopForSale}
       onClose={closeSheet}
+      closeRef={closeRef}
       footer={
         locked ? null : (
-          <Button
-            label={strings.buyShop}
-            accessibilityLabel={`${strings.buyShop}, ${strings.a11y.cost(cost)}`}
-            trailing={
-              <Amount kind="coins" value={cost} textStyle={game.wallet.coins >= cost ? styles.onDark : undefined} />
-            }
-            disabled={game.wallet.coins < cost}
-            haptic={false}
-            onPress={() => report(gameStore.getState().buyShop(shopId), 'success')}
-          />
+          <Target id={targetIds.buyShop}>
+            <Button
+              label={strings.buyShop}
+              accessibilityLabel={`${strings.buyShop}, ${strings.a11y.cost(cost)}`}
+              trailing={
+                <Amount kind="coins" value={cost} textStyle={game.wallet.coins >= cost ? styles.onDark : undefined} />
+              }
+              disabled={game.wallet.coins < cost}
+              haptic={false}
+              onPress={() => report(gameStore.getState().buyShop(shopId), 'success')}
+            />
+          </Target>
         )
       }
     >

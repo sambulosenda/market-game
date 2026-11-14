@@ -1,6 +1,7 @@
-import * as Haptics from 'expo-haptics';
 import { Pressable, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+
+import { haptics } from './haptics';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -24,7 +25,7 @@ export function Bouncy({ style, haptic = true, onPressIn, onPressOut, ...rest }:
       style={[style, animated]}
       onPressIn={(e) => {
         scale.set(withTiming(0.94, { duration: 70 }));
-        if (haptic) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        if (haptic) haptics.light();
         onPressIn?.(e);
       }}
       onPressOut={(e) => {

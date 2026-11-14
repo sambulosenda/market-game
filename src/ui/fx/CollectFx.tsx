@@ -4,7 +4,6 @@ import Animated, {
   Easing,
   interpolate,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withTiming,
@@ -15,6 +14,7 @@ import { getShopAnchor, type Point } from '../../scene/anchors';
 import { onGameEvents } from '../../store';
 import { GoodIcon } from '../GoodIcon';
 import { land, landAll, splitFlights, takeOff } from './fxStore';
+import { useReduceMotion } from '../useReduceMotion';
 import { centreOf, type Measurable, originOf } from './measure';
 
 const FLIGHT_MS = 400;
@@ -46,7 +46,7 @@ export function CollectFx() {
   const [flights, setFlights] = useState<Flight[]>([]);
   const layer = useRef<React.ComponentRef<typeof View>>(null);
   const nextId = useRef(1);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = useReduceMotion();
 
   useEffect(() => {
     if (reduceMotion) return;
