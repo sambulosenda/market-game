@@ -20,4 +20,6 @@ Run lint, typecheck and tests before declaring a task done.
 - Game rules go in `src/core` with no React or native imports, and get unit tests.
 - Balance numbers go in `src/content/data`, never in code.
 - Player-facing text goes in `src/ui/strings.ts`.
+- Never commit 1024px art or edit `assets/art` or `src/art/manifest.ts` by hand: run `npm run build:art`.
+- Tappable things outside the canvas use `Bouncy` from `src/ui`.
 - `ios/` and `android/` are generated (Continuous Native Generation) and gitignored. Configure native behaviour in `app.json` and config plugins.

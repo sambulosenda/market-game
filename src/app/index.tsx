@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Street } from '@/scene/Street';
 import { BakePanel } from '@/ui/BakePanel';
+import { CollectFx } from '@/ui/fx/CollectFx';
 import { PantryBar } from '@/ui/PantryBar';
 import { colors } from '@/ui/theme';
 import { useAppLifecycle } from '@/ui/useAppLifecycle';
@@ -17,6 +18,7 @@ export default function StreetScreen() {
       <View style={styles.panel}>
         <BakePanel shopId="bakery" />
       </View>
+      <CollectFx />
       <WelcomeBack />
     </SafeAreaView>
   );

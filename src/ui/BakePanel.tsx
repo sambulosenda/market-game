@@ -1,9 +1,11 @@
 import * as Haptics from 'expo-haptics';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { content } from '../content';
 import { viewShop } from '../core';
 import { gameStore, useGame } from '../store';
+import { Bouncy } from './Bouncy';
+import { GoodIcon } from './GoodIcon';
 import { strings } from './strings';
 import { colors } from './theme';
 import { useNow } from './useNow';
@@ -53,9 +55,12 @@ export function BakePanel({ shopId }: { shopId: string }) {
                 : strings.waiting;
           return (
             <View key={b.batch.id} style={[styles.slot, b.status === 'ready' && styles.slotReady]}>
-              <Text style={styles.slotName} numberOfLines={1}>
-                {name}
-              </Text>
+              <View style={styles.slotHead}>
+                <GoodIcon good={content.recipes[b.batch.recipe].output} size={24} />
+                <Text style={styles.slotName} numberOfLines={1}>
+                  {name}
+                </Text>
+              </View>
               <Text style={styles.slotStatus}>{status}</Text>
               {b.status === 'baking' && (
                 <View style={styles.bar}>
@@ -68,16 +73,17 @@ export function BakePanel({ shopId }: { shopId: string }) {
       </View>
 
       {view.readyCount > 0 && (
-        <Pressable
+        <Bouncy
           accessibilityRole="button"
-          style={({ pressed }) => [styles.collect, pressed && styles.pressed]}
+          haptic={false}
+          style={styles.collect}
           onPress={() => {
             if (gameStore.getState().collect(shopId) === null)
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
           }}
         >
           <Text style={styles.buttonText}>{strings.collect(view.readyCount)}</Text>
-        </Pressable>
+        </Bouncy>
       )}
 
       <View style={styles.recipes}>
@@ -85,20 +91,24 @@ export function BakePanel({ shopId }: { shopId: string }) {
           const duration = strings.duration(r.durationSec);
           const name = content.goods[r.output].name;
           return (
-            <Pressable
+            <Bouncy
               key={r.id}
               accessibilityRole="button"
               accessibilityLabel={strings.a11y.bakeRecipe(name, duration)}
               accessibilityState={{ disabled: full }}
               disabled={full}
+              haptic={false}
               onPress={() => bake(r.id)}
-              style={({ pressed }) => [styles.recipe, full && styles.recipeDisabled, pressed && styles.pressed]}
+              style={[styles.recipe, full && styles.recipeDisabled]}
             >
-              <Text style={styles.recipeName} numberOfLines={2}>
-                {name}
-              </Text>
-              <Text style={styles.recipeTime}>{duration}</Text>
-            </Pressable>
+              <GoodIcon good={r.output} size={36} />
+              <View style={styles.recipeText}>
+                <Text style={styles.recipeName} numberOfLines={2}>
+                  {name}
+                </Text>
+                <Text style={styles.recipeTime}>{duration}</Text>
+              </View>
+            </Bouncy>
           );
         })}
       </View>
@@ -130,7 +140,8 @@ const styles = StyleSheet.create({
   slotReady: { borderColor: colors.ring, borderWidth: 2 },
   slotEmpty: { borderStyle: 'dashed', alignItems: 'center' },
   slotEmptyText: { color: colors.inkSoft, fontSize: 14 },
-  slotName: { fontSize: 15, fontWeight: '600', color: colors.ink },
+  slotHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  slotName: { fontSize: 15, fontWeight: '600', color: colors.ink, flexShrink: 1 },
   slotStatus: { fontSize: 14, color: colors.inkSoft, fontVariant: ['tabular-nums'] },
   bar: { height: 5, borderRadius: 3, backgroundColor: colors.panelEdge, marginTop: 4, overflow: 'hidden' },
   barFill: { height: 5, backgroundColor: colors.ring },
@@ -144,12 +155,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     minHeight: 56,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
+  recipeText: { flex: 1 },
   recipeDisabled: { backgroundColor: colors.buttonDisabled },
   recipeName: { color: colors.buttonText, fontSize: 16, fontWeight: '700' },
   recipeTime: { color: colors.buttonText, fontSize: 13, opacity: 0.9 },
   buttonText: { color: colors.buttonText, fontSize: 17, fontWeight: '700' },
-  pressed: { transform: [{ scale: 0.97 }], opacity: 0.9 },
   hint: { textAlign: 'center', color: colors.inkSoft, fontSize: 14 },
 });

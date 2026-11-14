@@ -1,10 +1,11 @@
 import { Canvas, Circle, Group, matchFont, Path, Skia, Text } from '@shopify/react-native-skia';
 import * as Haptics from 'expo-haptics';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector, useCompetingGestures, usePanGesture, useTapGesture } from 'react-native-gesture-handler';
 import {
   cancelAnimation,
+  type SharedValue,
   useDerivedValue,
   useFrameCallback,
   useSharedValue,
@@ -14,25 +15,35 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
+import { backgrounds, emptyPlotArt, goodArt, shopArt, signArt, ui } from '../art';
 import { content } from '../content';
 import { type ShopView, viewShop } from '../core';
 import { gameStore, useGame } from '../store';
 import { strings } from '../ui/strings';
 import { colors } from '../ui/theme';
 import { useNow } from '../ui/useNow';
-import { GROUND_Y, LOT_WIDTH, lotAt, lotX, PARALLAX, SCENE_HEIGHT, streetWidth } from './layout';
-import { BakeryStall, EmptyPlot, LoafIcon, RooftopsLayer, SkyLayer, StreetLayer } from './placeholders';
+import { registerShopAnchor } from './anchors';
+import { GROUND_Y, LOT_WIDTH, lotAt, lotX, PARALLAX, SCENE_HEIGHT, SHOP_BASE_Y, streetWidth } from './layout';
+import { Sprite, TiledBand } from './sprites';
 
-const RING_RADIUS = 22;
-const INDICATOR_Y = 34;
+const RING_RADIUS = 24;
+const BUBBLE = ui.ui_ready_bubble;
+/** Where the rooftops and street strips sit, from the top of the scene. */
+const ROOFTOPS_Y = GROUND_Y - 2 - backgrounds.bg_rooftops.h;
+const STREET_Y = SCENE_HEIGHT - backgrounds.bg_street.h;
 
 const font = matchFont({
   fontFamily: Platform.select({ ios: 'Helvetica Neue', default: 'sans-serif' }),
-  fontSize: 15,
+  fontSize: 14,
   fontWeight: 'bold',
 });
 
 const ringPath = Skia.PathBuilder.Make().addCircle(0, 0, RING_RADIUS).detach();
+
+/** The y of the centre of a shop's indicator: just above the building, kept on screen. */
+function indicatorY(shopHeight: number): number {
+  return Math.max(BUBBLE.h / 2 + 4, SHOP_BASE_Y - shopHeight - BUBBLE.h / 2 - 2);
+}
 
 /**
  * The street: one Skia canvas the width of the screen. A pan gesture moves a
@@ -82,18 +93,21 @@ export function Street() {
   });
 
   // --- tapping -----------------------------------------------------------
+  // Every lot gives tap feedback: a short squash and spring back, plus a haptic.
+  const pressedLot = useSharedValue(-1);
   const bounce = useSharedValue(1);
   const tap = useTapGesture({
     runOnJS: true,
     onActivate: (e) => {
       const lot = lotAt(e.x + scrollX.value, e.y, lotCount);
       if (lot === null) return;
+      pressedLot.value = lot;
+      bounce.value = withSequence(withTiming(0.93, { duration: 70 }), withSpring(1, { damping: 8, stiffness: 300 }));
       const shopId = shopsByLot.get(lot);
       if (!shopId || !gameStore.getState().game.shops[shopId]) {
         Haptics.selectionAsync();
         return;
       }
-      bounce.value = withSequence(withTiming(0.94, { duration: 70 }), withSpring(1, { damping: 8, stiffness: 300 }));
       if (gameStore.getState().collect(shopId) === null) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
@@ -103,60 +117,117 @@ export function Street() {
   });
   const gesture = useCompetingGestures(pan, tap);
 
+  // --- where shops are on screen, for effects drawn above the canvas -------
+  const container = useRef<React.ComponentRef<typeof View>>(null);
+  useEffect(() => {
+    registerShopAnchor(
+      (shopId) =>
+        new Promise((resolve) => {
+          const shop = content.shops[shopId];
+          const node = container.current;
+          if (!shop || !node) return resolve(null);
+          node.measureInWindow((x, y) => {
+            const cx = lotX(shop.lot) + LOT_WIDTH / 2 - scrollX.value;
+            const level = gameStore.getState().game.shops[shopId]?.level ?? 1;
+            resolve({
+              x: x + Math.min(width, Math.max(0, cx)),
+              y: y + indicatorY(shopArt(shopId, level)?.h ?? 0),
+            });
+          });
+        }),
+    );
+    return () => registerShopAnchor(null);
+  }, [scrollX, width]);
+
   // --- layer transforms ----------------------------------------------------
   const skyTransform = useDerivedValue(() => [{ translateX: -scrollX.value * PARALLAX.sky }]);
   const roofTransform = useDerivedValue(() => [{ translateX: -scrollX.value * PARALLAX.rooftops }]);
   const streetTransform = useDerivedValue(() => [{ translateX: -scrollX.value * PARALLAX.street }]);
 
-  const bakery = views.bakery;
-  const bakeryLot = content.shops.bakery.lot;
-  // Plain numbers only inside worklets: they run on the UI thread and cannot call ordinary JS functions.
-  const bakeryCentreX = lotX(bakeryLot) + LOT_WIDTH / 2;
-  const bakeryTransform = useDerivedValue(() => [
-    { translateX: bakeryCentreX },
-    { translateY: GROUND_Y },
-    { scale: bounce.value },
-    { translateX: -LOT_WIDTH / 2 },
-    { translateY: -GROUND_Y },
-  ]);
+  const readySummary = Object.entries(views)
+    .map(([id, v]) => strings.a11y.shopLot(content.shops[id].name, v.readyCount))
+    .join('. ');
 
   return (
     <View
+      ref={container}
       style={styles.container}
       accessible
-      accessibilityLabel={`${strings.a11y.street} ${strings.a11y.shopLot(content.shops.bakery.name, bakery?.readyCount ?? 0)}`}
+      accessibilityLabel={`${strings.a11y.street} ${readySummary}`}
     >
       <GestureDetector gesture={gesture}>
         <Canvas style={{ width, height: SCENE_HEIGHT }}>
           <Group transform={skyTransform}>
-            <SkyLayer width={width + maxScroll * PARALLAX.sky} />
+            <TiledBand art={backgrounds.bg_sky} y={0} width={width + maxScroll * PARALLAX.sky} />
           </Group>
           <Group transform={roofTransform}>
-            <RooftopsLayer width={width + maxScroll * PARALLAX.rooftops} />
+            <TiledBand art={backgrounds.bg_rooftops} y={ROOFTOPS_Y} width={width + maxScroll * PARALLAX.rooftops} />
           </Group>
           <Group transform={streetTransform}>
-            <StreetLayer width={fullWidth} />
+            <TiledBand art={backgrounds.bg_street} y={STREET_Y} width={fullWidth} />
             {Array.from({ length: lotCount }, (_, lot) => {
-              if (lot === bakeryLot) return null;
+              const shopId = shopsByLot.get(lot);
+              const owned = shopId ? game.shops[shopId] : undefined;
+              const building = shopId && owned ? shopArt(shopId, owned.level) : undefined;
+              const view = shopId ? views[shopId] : undefined;
               return (
-                <Group key={lot} transform={[{ translateX: lotX(lot) }]}>
-                  <EmptyPlot />
-                </Group>
+                <Lot key={lot} lot={lot} pressedLot={pressedLot} bounce={bounce}>
+                  {shopId && building ? (
+                    <>
+                      <Sprite art={building} cx={LOT_WIDTH / 2} baseY={SHOP_BASE_Y} />
+                      <ShopSign shopId={shopId} shopWidth={building.w} shopHeight={building.h} />
+                      {view && (
+                        <Group transform={[{ translateX: LOT_WIDTH / 2 }, { translateY: indicatorY(building.h) }]}>
+                          <ShopIndicator view={view} clock={game.clock} />
+                        </Group>
+                      )}
+                    </>
+                  ) : (
+                    <Sprite art={emptyPlotArt} cx={LOT_WIDTH / 2} baseY={SHOP_BASE_Y} />
+                  )}
+                </Lot>
               );
             })}
-            {bakery && (
-              <Group transform={bakeryTransform}>
-                <BakeryStall />
-                <Group transform={[{ translateX: LOT_WIDTH / 2 }, { translateY: INDICATOR_Y }]}>
-                  <ShopIndicator view={bakery} clock={game.clock} />
-                </Group>
-              </Group>
-            )}
           </Group>
         </Canvas>
       </GestureDetector>
     </View>
   );
+}
+
+/** One lot. Scales about the middle of its base while it is the lot being pressed. */
+function Lot({
+  lot,
+  pressedLot,
+  bounce,
+  children,
+}: {
+  lot: number;
+  pressedLot: SharedValue<number>;
+  bounce: SharedValue<number>;
+  children: React.ReactNode;
+}) {
+  // Plain numbers only inside worklets: they run on the UI thread and cannot call ordinary JS functions.
+  const x = lotX(lot);
+  const transform = useDerivedValue(() => {
+    const scale = pressedLot.value === lot ? bounce.value : 1;
+    return [
+      { translateX: x + LOT_WIDTH / 2 },
+      { translateY: SHOP_BASE_Y },
+      { scale },
+      { translateX: -LOT_WIDTH / 2 },
+      { translateY: -SHOP_BASE_Y },
+    ];
+  });
+  return <Group transform={transform}>{children}</Group>;
+}
+
+/** The hanging sign, a separate layer from the building, at its top-left corner. */
+function ShopSign({ shopId, shopWidth, shopHeight }: { shopId: string; shopWidth: number; shopHeight: number }) {
+  const art = signArt(shopId);
+  if (!art) return null;
+  const left = (LOT_WIDTH - shopWidth) / 2;
+  return <Sprite art={art} cx={left + 4} baseY={SHOP_BASE_Y - shopHeight + art.h * 0.55} />;
 }
 
 /** A progress ring while baking, or a ready bubble with a count once something is done. */
@@ -189,26 +260,36 @@ function ShopIndicator({ view, clock }: { view: ShopView; clock: number }) {
   );
 
   if (view.readyCount > 0) {
+    const first = view.batches.find((b) => b.status === 'ready');
+    const icon = first ? goodArt(content.recipes[first.batch.recipe].output) : undefined;
     const label = `${view.readyCount}`;
     const labelWidth = font.measureText(label).width;
+    // The bubble's tail takes roughly the bottom fifth, so the icon sits a little above centre.
     return (
       <Group>
-        <Circle cx={0} cy={0} r={28} color={colors.bubble} />
-        <Circle cx={0} cy={0} r={28} color={colors.panelEdge} style="stroke" strokeWidth={2} />
-        <LoafIcon cx={0} cy={0} size={1.1} />
-        <Circle cx={22} cy={-20} r={12} color={colors.accent} />
-        <Text x={22 - labelWidth / 2} y={-15} text={label} font={font} color={colors.buttonText} />
+        <Sprite art={BUBBLE} cx={0} baseY={BUBBLE.h / 2} />
+        {icon && <Sprite art={icon} cx={0} baseY={BUBBLE.h * 0.5 - 16} scale={30 / Math.max(icon.w, icon.h)} />}
+        <Circle cx={BUBBLE.w / 2 - 6} cy={-BUBBLE.h / 2 + 6} r={11} color={colors.accent} />
+        <Text
+          x={BUBBLE.w / 2 - 6 - labelWidth / 2}
+          y={-BUBBLE.h / 2 + 11}
+          text={label}
+          font={font}
+          color={colors.buttonText}
+        />
       </Group>
     );
   }
 
   if (!active) return null;
+  const icon = goodArt(content.recipes[active.batch.recipe].output);
   return (
     <Group>
-      <Circle cx={0} cy={0} r={RING_RADIUS + 6} color="rgba(0,0,0,0.15)" />
-      <Path path={ringPath} color={colors.ringTrack} style="stroke" strokeWidth={7} />
+      <Circle cx={0} cy={0} r={RING_RADIUS + 5} color={colors.panel} />
+      {icon && <Sprite art={icon} cx={0} baseY={14} scale={28 / Math.max(icon.w, icon.h)} />}
+      <Path path={ringPath} color={colors.panelEdge} style="stroke" strokeWidth={6} />
       <Group transform={[{ rotate: -Math.PI / 2 }]}>
-        <Path path={ringPath} color={colors.ring} style="stroke" strokeWidth={7} strokeCap="round" end={progress} />
+        <Path path={ringPath} color={colors.ring} style="stroke" strokeWidth={6} strokeCap="round" end={progress} />
       </Group>
     </Group>
   );

@@ -24,6 +24,7 @@ export const strings = {
     street: 'The street. Swipe sideways to look around.',
     shopLot: (name: string, ready: number) => (ready > 0 ? `${name}, ${ready} ready to collect` : name),
     emptyLot: 'Empty plot',
+    pantryItem: (name: string, n: number) => `${name}, ${n}`,
     bakeRecipe: (name: string, duration: string) => `Bake ${name}, takes ${duration}`,
   },
 };

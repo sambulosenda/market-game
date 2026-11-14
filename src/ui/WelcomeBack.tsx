@@ -1,7 +1,9 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import { content } from '../content';
 import { gameStore, useGame } from '../store';
+import { Bouncy } from './Bouncy';
+import { GoodIcon } from './GoodIcon';
 import { strings } from './strings';
 import { colors } from './theme';
 
@@ -17,13 +19,16 @@ export function WelcomeBack() {
           <Text style={styles.title}>{strings.welcomeBackTitle}</Text>
           <Text style={styles.body}>{strings.welcomeBackBody}</Text>
           {Object.entries(summary.finished).map(([good, n]) => (
-            <Text key={good} style={styles.item}>
-              {content.goods[good]?.name ?? good} × {n}
-            </Text>
+            <View key={good} style={styles.row}>
+              <GoodIcon good={good} size={32} />
+              <Text style={styles.item}>
+                {content.goods[good]?.name ?? good} × {n}
+              </Text>
+            </View>
           ))}
-          <Pressable accessibilityRole="button" style={styles.button} onPress={close}>
+          <Bouncy accessibilityRole="button" style={styles.button} onPress={close}>
             <Text style={styles.buttonText}>{strings.ok}</Text>
-          </Pressable>
+          </Bouncy>
         </View>
       </View>
     </Modal>
@@ -35,6 +40,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.panel, borderRadius: 20, padding: 24, gap: 8 },
   title: { fontSize: 24, fontWeight: '700', color: colors.ink },
   body: { fontSize: 16, color: colors.inkSoft, marginBottom: 4 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   item: { fontSize: 18, color: colors.ink, fontWeight: '600' },
   button: { marginTop: 12, backgroundColor: colors.button, borderRadius: 14, paddingVertical: 12, alignItems: 'center' },
   buttonText: { color: colors.buttonText, fontSize: 17, fontWeight: '700' },
