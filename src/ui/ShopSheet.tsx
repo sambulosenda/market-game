@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
 import { ui } from '../art';
@@ -6,9 +7,11 @@ import {
   batchSpeedMultiplier,
   type GameState,
   pantrySpace,
+  queueSlotCost,
   recipeAvailable,
   recipeDurationMs,
   shopLevelConfig,
+  skipTimerCost,
   viewShop,
 } from '../core';
 import { gameStore, useGame } from '../store';
@@ -16,7 +19,7 @@ import { Bouncy } from './Bouncy';
 import { report } from './feedback';
 import { GoodIcon } from './GoodIcon';
 import { GoodNeed } from './GoodNeed';
-import { Amount, Button, ProgressBar, Sheet, Txt, Well } from './kit';
+import { Amount, Button, Popup, ProgressBar, Sheet, Txt, Well } from './kit';
 import { strings } from './strings';
 import { colors, radius, space, TAP } from './theme';
 import { targetIds } from './tutorial/steps';
@@ -45,121 +48,190 @@ function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
   const queueFull = view.batches.length >= view.queueSize;
   const next = config.levels[shop.level];
   const clock = Math.max(now, game.clock);
+  // Spending gems always asks first.
+  const [confirming, setConfirming] = useState<'skip' | 'slot' | null>(null);
+  const skipCost = skipTimerCost(game, content, shopId, now);
+  const slotCost = queueSlotCost(game, content, shopId);
+  const baking = view.active ? content.goods[content.recipes[view.active.batch.recipe].output].name : '';
+  const confirmCost = confirming === 'skip' ? skipCost : confirming === 'slot' ? slotCost : null;
 
   return (
-    <Sheet
-      title={config.name}
-      subtitle={strings.shopLevel(shop.level, config.levels.length)}
-      onClose={closeSheet}
-      closeRef={closeRef}
-      footer={
-        view.readyCount > 0 ? (
-          <>
-            {pantrySpace(game, content) === 0 && (
-              <Txt variant="small" soft style={styles.centre}>
-                {strings.pantryFull}
-              </Txt>
-            )}
-            <Target id={targetIds.collect}>
-              <Button
-                label={strings.collect(view.readyCount)}
-                haptic={false}
-                onPress={() => report(gameStore.getState().collect(shopId), 'success')}
-              />
-            </Target>
-          </>
-        ) : null
-      }
-    >
-      <View style={styles.sectionHead}>
-        <Txt variant="heading">{strings.queue(view.batches.length, view.queueSize)}</Txt>
-      </View>
-      <View style={styles.queue}>
-        {Array.from({ length: view.queueSize }, (_, i) => {
-          const b = view.batches[i];
-          if (!b) {
-            return (
-              <View key={`e${i}`} style={[styles.slot, styles.slotEmpty]}>
-                <Txt variant="small" soft>
-                  {strings.emptySlot}
+    <>
+      <Sheet
+        title={config.name}
+        subtitle={strings.shopLevel(shop.level, config.levels.length)}
+        onClose={closeSheet}
+        closeRef={closeRef}
+        footer={
+          view.readyCount > 0 ? (
+            <>
+              {pantrySpace(game, content) === 0 && (
+                <Txt variant="small" soft style={styles.centre}>
+                  {strings.pantryFull}
                 </Txt>
+              )}
+              <Target id={targetIds.collect}>
+                <Button
+                  label={strings.collect(view.readyCount)}
+                  haptic={false}
+                  onPress={() => report(gameStore.getState().collect(shopId), 'success')}
+                />
+              </Target>
+            </>
+          ) : null
+        }
+      >
+        <View style={styles.sectionHead}>
+          <Txt variant="heading">{strings.queue(view.batches.length, view.queueSize)}</Txt>
+        </View>
+        <View style={styles.queue}>
+          {Array.from({ length: view.queueSize }, (_, i) => {
+            const b = view.batches[i];
+            if (!b) {
+              return (
+                <View key={`e${i}`} style={[styles.slot, styles.slotEmpty]}>
+                  <Txt variant="small" soft>
+                    {strings.emptySlot}
+                  </Txt>
+                </View>
+              );
+            }
+            const good = content.recipes[b.batch.recipe].output;
+            const status =
+              b.status === 'ready'
+                ? strings.ready
+                : b.status === 'baking'
+                  ? strings.remaining(b.endsAt - clock)
+                  : strings.waiting;
+            return (
+              <View
+                key={b.batch.id}
+                style={[styles.slot, b.status === 'ready' && styles.slotReady]}
+                accessible
+                accessibilityLabel={`${content.goods[good].name}, ${status}`}
+              >
+                <GoodIcon good={good} size={32} />
+                <Txt variant="small" style={styles.tabular}>
+                  {status}
+                </Txt>
+                {b.status === 'baking' && <ProgressBar progress={b.progress} height={5} />}
               </View>
             );
-          }
-          const good = content.recipes[b.batch.recipe].output;
-          const status =
-            b.status === 'ready'
-              ? strings.ready
-              : b.status === 'baking'
-                ? strings.remaining(b.endsAt - clock)
-                : strings.waiting;
-          return (
-            <View
-              key={b.batch.id}
-              style={[styles.slot, b.status === 'ready' && styles.slotReady]}
-              accessible
-              accessibilityLabel={`${content.goods[good].name}, ${status}`}
-            >
-              <GoodIcon good={good} size={32} />
-              <Txt variant="small" style={styles.tabular}>
-                {status}
-              </Txt>
-              {b.status === 'baking' && <ProgressBar progress={b.progress} height={5} />}
-            </View>
-          );
-        })}
-      </View>
+          })}
+        </View>
 
-      <Txt variant="heading">{strings.recipes}</Txt>
-      {queueFull && (
-        <Txt variant="small" soft>
-          {strings.queueFull}
-        </Txt>
-      )}
-      <View style={styles.recipes}>
-        {recipesOf(shopId).map((recipe) => (
-          <Target key={recipe.id} id={targetIds.recipe(recipe.id)}>
-            <RecipeRow
-              recipe={recipe}
-              game={game}
-              durationSec={recipeDurationMs(content, recipe.id, level, speed) / 1000}
-              queueFull={queueFull}
-            />
-          </Target>
-        ))}
-      </View>
-
-      <Well style={styles.upgrade}>
-        {next ? (
-          <>
-            <View style={styles.upgradeText}>
-              <Txt variant="label">{strings.shopLevel(shop.level + 1, config.levels.length)}</Txt>
-              <Txt variant="small" soft>
-                {strings.upgradeShopGain(
-                  next.queueSize,
-                  Math.round((1 - next.durationMultiplier) * 100),
-                  recipesOf(shopId)
-                    .filter((r) => r.shopLevel === shop.level + 1)
-                    .map((r) => content.goods[r.output].name),
-                )}
-              </Txt>
-            </View>
-            <Button
-              small
-              kind="secondary"
-              label={strings.upgrade}
-              accessibilityLabel={`${strings.upgrade}, ${strings.a11y.cost(next.cost)}`}
-              trailing={<Amount kind="coins" value={next.cost} size={18} />}
-              disabled={game.wallet.coins < next.cost}
-              haptic={false}
-              onPress={() => report(gameStore.getState().upgradeShop(shopId), 'success')}
-            />
-          </>
-        ) : (
-          <Txt soft>{strings.shopMaxLevel}</Txt>
+        {(skipCost !== null || slotCost !== null) && (
+          <View style={styles.gemRow}>
+            {skipCost !== null && (
+              <Button
+                small
+                kind="secondary"
+                style={styles.gemButton}
+                label={strings.gems.skip}
+                accessibilityLabel={`${strings.gems.skip}, ${strings.a11y.amount.gems(skipCost)}`}
+                trailing={<Amount kind="gems" value={skipCost} size={18} />}
+                onPress={() => setConfirming('skip')}
+              />
+            )}
+            {slotCost !== null && (
+              <Button
+                small
+                kind="secondary"
+                style={styles.gemButton}
+                label={strings.gems.slot}
+                accessibilityLabel={`${strings.gems.slot}, ${strings.a11y.amount.gems(slotCost)}`}
+                trailing={<Amount kind="gems" value={slotCost} size={18} />}
+                onPress={() => setConfirming('slot')}
+              />
+            )}
+          </View>
         )}
-      </Well>
-    </Sheet>
+
+        <Txt variant="heading">{strings.recipes}</Txt>
+        {queueFull && (
+          <Txt variant="small" soft>
+            {strings.queueFull}
+          </Txt>
+        )}
+        <View style={styles.recipes}>
+          {recipesOf(shopId).map((recipe) => (
+            <Target key={recipe.id} id={targetIds.recipe(recipe.id)}>
+              <RecipeRow
+                recipe={recipe}
+                game={game}
+                durationSec={recipeDurationMs(content, recipe.id, level, speed) / 1000}
+                queueFull={queueFull}
+              />
+            </Target>
+          ))}
+        </View>
+
+        <Well style={styles.upgrade}>
+          {next ? (
+            <>
+              <View style={styles.upgradeText}>
+                <Txt variant="label">{strings.shopLevel(shop.level + 1, config.levels.length)}</Txt>
+                <Txt variant="small" soft>
+                  {strings.upgradeShopGain(
+                    next.queueSize,
+                    Math.round((1 - next.durationMultiplier) * 100),
+                    recipesOf(shopId)
+                      .filter((r) => r.shopLevel === shop.level + 1)
+                      .map((r) => content.goods[r.output].name),
+                  )}
+                </Txt>
+              </View>
+              <Button
+                small
+                kind="secondary"
+                label={strings.upgrade}
+                accessibilityLabel={`${strings.upgrade}, ${strings.a11y.cost(next.cost)}`}
+                trailing={<Amount kind="coins" value={next.cost} size={18} />}
+                disabled={game.wallet.coins < next.cost}
+                haptic={false}
+                onPress={() => report(gameStore.getState().upgradeShop(shopId), 'success')}
+              />
+            </>
+          ) : (
+            <Txt soft>{strings.shopMaxLevel}</Txt>
+          )}
+        </Well>
+      </Sheet>
+      {confirming && confirmCost !== null && (
+        <Popup
+          title={confirming === 'skip' ? strings.gems.skipTitle : strings.gems.slotTitle}
+          onClose={() => setConfirming(null)}
+          footer={
+            <>
+              <Button
+                label={strings.gems.spend}
+                accessibilityLabel={`${strings.gems.spend}, ${strings.a11y.amount.gems(confirmCost)}`}
+                trailing={<Amount kind="gems" value={confirmCost} size={18} textStyle={styles.onDark} />}
+                disabled={game.wallet.gems < confirmCost}
+                haptic={false}
+                onPress={() => {
+                  const store = gameStore.getState();
+                  report(confirming === 'skip' ? store.skipTimer(shopId) : store.buyQueueSlot(shopId), 'success');
+                  setConfirming(null);
+                }}
+              />
+              <Button kind="secondary" label={strings.gems.keep} onPress={() => setConfirming(null)} />
+            </>
+          }
+        >
+          <Txt style={styles.centre}>
+            {confirming === 'skip'
+              ? strings.gems.skipBody(baking, confirmCost)
+              : strings.gems.slotBody(config.name, confirmCost)}
+          </Txt>
+          {game.wallet.gems < confirmCost && (
+            <Txt variant="small" style={[styles.centre, styles.short]}>
+              {strings.gems.short(game.wallet.gems)}
+            </Txt>
+          )}
+        </Popup>
+      )}
+    </>
   );
 }
 
@@ -284,9 +356,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'baseline',
   },
-  queue: { flexDirection: 'row', gap: space.sm },
+  queue: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  gemRow: { flexDirection: 'row', gap: space.sm },
+  gemButton: { flex: 1 },
+  short: { color: colors.bad },
   slot: {
     flex: 1,
+    // With slots bought for gems a queue can outgrow one row; it then wraps.
+    minWidth: 60,
     minHeight: 76,
     borderRadius: radius.sm,
     padding: space.sm,

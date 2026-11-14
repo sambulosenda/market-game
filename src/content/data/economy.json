@@ -74,6 +74,13 @@
       }
     ]
   },
+  "gems": {
+    "skipMinutesPerGem": 15,
+    "extraQueueSlotCosts": [
+      15,
+      40
+    ]
+  },
   "tips": {
     "base": 1,
     "perLevel": 0.5

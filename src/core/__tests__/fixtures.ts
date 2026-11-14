@@ -102,6 +102,7 @@ export const testContent = loadContent({
         { minLevel: 2, max: 3 },
       ],
     },
+    gems: { skipMinutesPerGem: 2, extraQueueSlotCosts: [3, 6] },
     tips: { base: 1, perLevel: 0.5 },
     daily: {
       goals: [

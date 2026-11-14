@@ -59,7 +59,14 @@ const saveSchema = z.object({
   nextBatchId: z.number().int().positive(),
   pantry: z.record(z.string(), z.number().int().nonnegative()),
   pantryLevel: z.number().int().min(1),
-  shops: z.record(z.string(), z.object({ level: z.number().int().min(1), queue: z.array(batchSchema) })),
+  shops: z.record(
+    z.string(),
+    z.object({
+      level: z.number().int().min(1),
+      queue: z.array(batchSchema),
+      extraSlots: z.number().int().nonnegative().optional(),
+    }),
+  ),
   wallet: z.object({
     coins: z.number().int().nonnegative(),
     gems: z.number().int().nonnegative(),
@@ -78,6 +85,8 @@ const saveSchema = z.object({
           'daily_goal',
           'daily_calendar',
           'tip',
+          'skip_timer',
+          'queue_slot',
         ]),
         balance: z.number().int(),
       }),

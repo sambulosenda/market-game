@@ -44,9 +44,11 @@ export function reconcile(state: GameState, content: Content): GameState {
   for (const [id, shop] of Object.entries(state.shops)) {
     const config = content.shops[id];
     if (!config) continue;
+    const extraSlots = clamp(shop.extraSlots ?? 0, 0, content.economy.gems.extraQueueSlotCosts.length);
     shops[id] = {
       level: clamp(shop.level, 1, config.levels.length),
       queue: shop.queue.filter((b) => content.recipes[b.recipe]?.shop === id),
+      ...(extraSlots > 0 ? { extraSlots } : {}),
     };
   }
   for (const shop of Object.values(content.shops)) {

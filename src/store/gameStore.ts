@@ -3,6 +3,7 @@ import { createStore } from 'zustand/vanilla';
 import type { Content } from '../content/schema';
 import {
   type ActionResult,
+  buyQueueSlot,
   buyShop,
   claimCalendarGift,
   claimDailyGoal,
@@ -20,6 +21,7 @@ import {
   resume,
   serializeSave,
   skipOrder,
+  skipTimer,
   startBatch,
   tipCustomer,
   upgradePantry,
@@ -55,6 +57,10 @@ export type GameStore = {
   claimDailyGoal(index: number): FailReason | null;
   /** Takes today's gift from the login calendar. */
   claimCalendarGift(): FailReason | null;
+  /** Spends gems to finish the shop's baking batch now. */
+  skipTimer(shopId: string): FailReason | null;
+  /** Spends gems on one more queue slot for the shop. */
+  buyQueueSlot(shopId: string): FailReason | null;
   /** Takes a walking customer's tip. */
   tipCustomer(): void;
   /** Refills order slots whose wait is over and sets new goals after midnight. Cheap, so screens call it as time passes. */
@@ -154,6 +160,8 @@ export function createGameStore({
         const t = now();
         return apply(claimCalendarGift(get().game, content, t, timezoneOffsetMin(t)));
       },
+      skipTimer: (shopId) => apply(skipTimer(get().game, content, shopId, now())),
+      buyQueueSlot: (shopId) => apply(buyQueueSlot(get().game, content, shopId, now())),
       tipCustomer: () => void apply(tipCustomer(get().game, content, now())),
       refreshOrders: () => {
         const state = tick(get().game, now());
