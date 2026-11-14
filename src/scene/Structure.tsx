@@ -50,7 +50,6 @@ export function useAmbientPhase(
         phase.value = withRepeat(withTiming(1, { duration: AMBIENT_LOOP_MS, easing: Easing.linear }), -1, false);
       }
     },
-    [still, x, viewWidth],
   );
   return phase;
 }
