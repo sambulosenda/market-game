@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { type Content, DAILY_GOAL_KINDS } from '../content/schema';
+import { NO_ALBUM } from './collections';
 import { NO_DAILY } from './daily';
 import { reconcile } from './state';
 import { type GameState, SAVE_VERSION } from './types';
@@ -40,6 +41,11 @@ export const MIGRATIONS: Migration[] = [
     // Version 4 added the count of goods made, for shop mastery.
     from: 3,
     migrate: (save) => ({ ...save, made: {} }),
+  },
+  {
+    // Version 5 added the collections album.
+    from: 4,
+    migrate: (save) => ({ ...save, album: NO_ALBUM }),
   },
 ];
 
@@ -92,6 +98,7 @@ const saveSchema = z.object({
           'tip',
           'skip_timer',
           'queue_slot',
+          'collection_set',
         ]),
         balance: z.number().int(),
       }),
@@ -119,6 +126,7 @@ const saveSchema = z.object({
     calendar: z.object({ claimed: z.number().int().nonnegative(), lastDay: z.number().int().nullable() }),
   }),
   made: z.record(z.string(), z.number().int().nonnegative()),
+  album: z.object({ customers: z.array(z.number().int().positive()), claimed: z.array(z.string()) }),
   rng: z.number().int().nonnegative(),
 });
 

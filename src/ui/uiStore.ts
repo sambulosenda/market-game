@@ -12,6 +12,7 @@ export type SheetState =
   | { kind: 'pantry' }
   | { kind: 'settings' }
   | { kind: 'daily' }
+  | { kind: 'album' }
   | null;
 
 export type LevelUp = {

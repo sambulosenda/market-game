@@ -142,6 +142,13 @@ export const economySchema = z.strictObject({
       message: 'starsAt must go up',
       path: ['starsAt'],
     }),
+  /** The album: gems for finding every good of a shop, and for meeting every customer who walks the street. */
+  collections: z.strictObject({
+    goodsSetGems: z.number().int().nonnegative(),
+    /** How many different customers there are. It must match the customer art. */
+    customerLooks: z.number().int().min(1),
+    customerSetGems: z.number().int().nonnegative(),
+  }),
   gems: z.strictObject({
     /** Finishing a baking batch costs one gem for each of these minutes left, rounded up. */
     skipMinutesPerGem: z.number().positive(),

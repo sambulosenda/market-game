@@ -1,5 +1,6 @@
 export * from './bonuses';
 export * from './clock';
+export * from './collections';
 export * from './daily';
 export * from './gems';
 export * from './landmarks';
