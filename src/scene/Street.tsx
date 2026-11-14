@@ -22,15 +22,21 @@ import { tapLot } from '../ui/lotActions';
 import { strings } from '../ui/strings';
 import { colors } from '../ui/theme';
 import { useNow } from '../ui/useNow';
+import { useReduceMotion } from '../ui/useReduceMotion';
 import { registerShopAnchor } from './anchors';
 import { GROUND_Y, LOT_WIDTH, lotAt, lotX, PARALLAX, SCENE_HEIGHT, SHOP_BASE_Y, streetWidth } from './layout';
 import { Sprite, TiledBand } from './sprites';
+import { Smoke, Structure, Swinging, useAmbientPhase } from './Structure';
 
 const RING_RADIUS = 24;
 const BUBBLE = ui.ui_ready_bubble;
 /** Where the rooftops and street strips sit, from the top of the scene. */
 const ROOFTOPS_Y = GROUND_Y - 2 - backgrounds.bg_rooftops.h;
 const STREET_Y = SCENE_HEIGHT - backgrounds.bg_street.h;
+
+/** From level 2 a shop is a building with a chimney, this far across its art. Level 1 is a market stall. */
+const CHIMNEY_X = 0.805;
+const hasChimney = (level: number) => level >= 2;
 
 const font = matchFont({
   fontFamily: Platform.select({ ios: 'Helvetica Neue', default: 'sans-serif' }),
@@ -59,6 +65,7 @@ export function Street() {
 
   const game = useGame((s) => s.game);
   const now = useNow(1000);
+  const still = useReduceMotion();
 
   const shopsByLot = useMemo(() => {
     const map = new Map<number, string>();
@@ -177,25 +184,59 @@ export function Street() {
                 landmarkId && game.level >= content.unlockLevel.landmarks[landmarkId]
                   ? landmarkArt(landmarkId, game.landmarks[landmarkId]?.stage ?? 0)
                   : undefined;
+              const art = building ?? landmark ?? emptyPlotArt;
+              const stage = owned?.level ?? (landmarkId ? (game.landmarks[landmarkId]?.stage ?? 0) : 0);
+              // Neighbouring shops loop out of step with each other.
+              const offset = (lot * 0.37) % 1;
               return (
-                <Lot key={lot} lot={lot} pressedLot={pressedLot} bounce={bounce}>
-                  {shopId && building ? (
+                <Lot
+                  key={lot}
+                  lot={lot}
+                  pressedLot={pressedLot}
+                  bounce={bounce}
+                  scrollX={scrollX}
+                  viewWidth={width}
+                  still={still}
+                >
+                  {(phase) => (
                     <>
-                      <Sprite art={building} cx={LOT_WIDTH / 2} baseY={SHOP_BASE_Y} />
-                      <ShopSign shopId={shopId} shopWidth={building.w} shopHeight={building.h} />
-                      {view && (
+                      <Structure
+                        art={art}
+                        stage={stage}
+                        phase={phase}
+                        offset={offset}
+                        sway={!!building && !hasChimney(owned?.level ?? 0)}
+                        still={still}
+                      >
+                        {shopId && building && (
+                          <>
+                            {hasChimney(owned?.level ?? 0) && (
+                              <Smoke
+                                x={(LOT_WIDTH - building.w) / 2 + building.w * CHIMNEY_X}
+                                y={SHOP_BASE_Y - building.h + 4}
+                                phase={phase}
+                                offset={offset}
+                                still={still}
+                              />
+                            )}
+                            <ShopSign
+                              shopId={shopId}
+                              shopWidth={building.w}
+                              shopHeight={building.h}
+                              phase={phase}
+                              offset={offset}
+                              still={still}
+                            />
+                          </>
+                        )}
+                      </Structure>
+                      {shopId && building && view && (
                         <Group transform={[{ translateX: LOT_WIDTH / 2 }, { translateY: indicatorY(building.h) }]}>
                           <ShopIndicator view={view} clock={game.clock} />
                         </Group>
                       )}
-                    </>
-                  ) : landmark ? (
-                    <Sprite art={landmark} cx={LOT_WIDTH / 2} baseY={SHOP_BASE_Y} />
-                  ) : (
-                    <>
-                      <Sprite art={emptyPlotArt} cx={LOT_WIDTH / 2} baseY={SHOP_BASE_Y} />
-                      {shopId && <PlotTag shopId={shopId} level={game.level} />}
-                      {landmarkId && <LockTag />}
+                      {!building && !landmark && shopId && <PlotTag shopId={shopId} level={game.level} />}
+                      {!building && !landmark && landmarkId && <LockTag />}
                     </>
                   )}
                 </Lot>
@@ -213,13 +254,21 @@ function Lot({
   lot,
   pressedLot,
   bounce,
+  scrollX,
+  viewWidth,
+  still,
   children,
 }: {
   lot: number;
   pressedLot: SharedValue<number>;
   bounce: SharedValue<number>;
-  children: React.ReactNode;
+  scrollX: SharedValue<number>;
+  viewWidth: number;
+  still: boolean;
+  /** Draws the lot, given the phase of its ambient loop. */
+  children: (phase: SharedValue<number>) => React.ReactNode;
 }) {
+  const phase = useAmbientPhase(lot, scrollX, viewWidth, still);
   // Plain numbers only inside worklets: they run on the UI thread and cannot call ordinary JS functions.
   const x = lotX(lot);
   const transform = useDerivedValue(() => {
@@ -232,15 +281,38 @@ function Lot({
       { translateY: -SHOP_BASE_Y },
     ];
   });
-  return <Group transform={transform}>{children}</Group>;
+  return <Group transform={transform}>{children(phase)}</Group>;
 }
 
-/** The hanging sign, a separate layer from the building, at its top-left corner. */
-function ShopSign({ shopId, shopWidth, shopHeight }: { shopId: string; shopWidth: number; shopHeight: number }) {
+/** The hanging sign, a separate layer from the building, swinging from its top-left corner. */
+function ShopSign({
+  shopId,
+  shopWidth,
+  shopHeight,
+  phase,
+  offset,
+  still,
+}: {
+  shopId: string;
+  shopWidth: number;
+  shopHeight: number;
+  phase: SharedValue<number>;
+  offset: number;
+  still: boolean;
+}) {
   const art = signArt(shopId);
   if (!art) return null;
   const left = (LOT_WIDTH - shopWidth) / 2;
-  return <Sprite art={art} cx={left + 4} baseY={SHOP_BASE_Y - shopHeight + art.h * 0.55} />;
+  return (
+    <Swinging
+      art={art}
+      x={left + 4}
+      y={SHOP_BASE_Y - shopHeight - art.h * 0.45}
+      phase={phase}
+      offset={offset}
+      still={still}
+    />
+  );
 }
 
 const TAG_Y = SHOP_BASE_Y - emptyPlotArt.h / 2;
