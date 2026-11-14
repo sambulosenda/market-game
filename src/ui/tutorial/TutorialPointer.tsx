@@ -1,6 +1,6 @@
 import { Canvas, Path, Skia } from '@shopify/react-native-skia';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Dimensions, StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -79,8 +79,11 @@ export function TutorialPointer() {
     Promise.all([locate(target), originOf(layer.current)]).then(([found, origin]) => {
       if (!current) return;
       if (!found || !origin) return setSpot(null);
-      // Above the target, or below it when there is no room above.
-      const flip = found.point.y - origin.y < H + GAP + 8;
+      // A lot is pointed at from above, or from below when there is no room above. A button is pointed at
+      // from below when there is room, so the arrow does not hide the rest of the button's own card.
+      const roomAbove = found.point.y - origin.y >= H + GAP + 8;
+      const roomBelow = found.below.y + H + GAP + 8 <= Dimensions.get('window').height;
+      const flip = target.kind === 'lot' ? !roomAbove : roomBelow || !roomAbove;
       const at = flip ? found.below : found.point;
       setSpot({ key, x: at.x - origin.x, y: at.y - origin.y, flip, scale: target.kind === 'lot' ? 1 : BUTTON_SCALE });
     });
