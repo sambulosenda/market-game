@@ -4,6 +4,7 @@ export * from './daily';
 export * from './gems';
 export * from './landmarks';
 export * from './levels';
+export * from './notifications';
 export * from './offline';
 export * from './orders';
 export * from './pantry';

@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { notifier } from '../notify';
 import { deleteAllData, settingsStore, useSettings } from '../store';
 import type { SettingKey } from '../store/settings';
 import { haptics } from './haptics';
 import { Button, Popup, Sheet, ToggleRow, Txt, Well } from './kit';
 import { strings } from './strings';
 import { colors, space } from './theme';
-import { closeSheet } from './uiStore';
+import { closeSheet, toast } from './uiStore';
 
 const toggles: SettingKey[] = ['music', 'sound', 'haptics', 'notifications', 'reduceMotion'];
 
@@ -20,6 +21,14 @@ export function SettingsSheet() {
     settingsStore.getState().set(key, value);
     // After the change, so turning haptics on is felt and turning them off is not.
     haptics.light();
+    // The system asks the player once. If the answer is no, the switch goes back off.
+    if (key === 'notifications' && value) {
+      void notifier.requestPermission().then((allowed) => {
+        if (allowed) return;
+        settingsStore.getState().set('notifications', false);
+        toast(strings.notifications.blocked);
+      });
+    }
   };
 
   return (

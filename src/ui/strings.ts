@@ -146,7 +146,7 @@ export const strings = {
     notifications: 'Notifications',
     reduceMotion: 'Reduce motion',
     hints: {
-      notifications: 'A nudge when your goods are ready. Never at night.',
+      notifications: 'A nudge when your goods are ready. Two a day at most, never at night.',
       reduceMotion: 'Fewer moving effects. Buttons still respond to taps.',
     } as Partial<Record<string, string>>,
     deleteData: 'Delete my data',
@@ -155,6 +155,16 @@ export const strings = {
     deleteBody: 'Your street, coins, gems and settings will be gone for good. This cannot be undone.',
     deleteKeep: 'Keep my street',
     deleteConfirm: 'Delete everything',
+  },
+
+  // Notifications sent while the player is away
+  notifications: {
+    channel: 'Reminders',
+    blocked: 'Notifications are turned off for Market Street in your phone settings.',
+    text: {
+      goods_ready: { title: 'Your goods are ready', body: 'Everything you were making is waiting to be collected.' },
+      daily_goals: { title: 'A new day on Market Street', body: 'Fresh goals and a gift are waiting for you.' },
+    },
   },
 
   // Why an action did not happen

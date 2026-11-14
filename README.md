@@ -45,6 +45,7 @@ Every pull request runs the type check, the lint and the tests in GitHub Actions
 | `src/store` | A zustand store around the core that saves to MMKV after every change. |
 | `src/scene` | The Skia street: scrolling, parallax, lots and in-scene indicators. |
 | `src/sim` | The balance simulator and the pacing targets. Not used by the app. |
+| `src/notify` | Local notifications: schedules what `src/core/notifications.ts` plans when the app goes to the background, and clears it on return. |
 | `src/art` | `manifest.ts` (generated) lists every image with its size in points; `index.ts` looks art up by good or shop id. |
 | `src/ui` | React Native views on top of the canvas: the top bar, the order board, sheets and pop-ups, plus `strings.ts` for all player-facing text. |
 | `src/ui/tutorial` | The onboarding: a pure function that picks the next thing to point at from the game state, and the arrow that points. |
