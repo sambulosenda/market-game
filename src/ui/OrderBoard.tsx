@@ -8,6 +8,7 @@ import { Bouncy } from './Bouncy';
 import { report } from './feedback';
 import { setRewardOrigin } from './fx/RewardFx';
 import { GoodIcon } from './GoodIcon';
+import { GearIcon } from './kit/GearIcon';
 import { Amount, Button, Panel, Txt } from './kit';
 import { strings } from './strings';
 import { colors, radius, space, TAP } from './theme';
@@ -32,9 +33,7 @@ export function OrderBoard() {
           style={styles.gear}
           hitSlop={6}
         >
-          <Txt variant="heading" soft>
-            ⚙︎
-          </Txt>
+          <GearIcon />
         </Bouncy>
       </View>
       {slots.map((slot, i) =>
