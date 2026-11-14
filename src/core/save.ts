@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import type { Content } from '../content/schema';
+import { type Content, DAILY_GOAL_KINDS } from '../content/schema';
+import { NO_DAILY } from './daily';
 import { reconcile } from './state';
 import { type GameState, SAVE_VERSION } from './types';
 
@@ -29,6 +30,11 @@ export const MIGRATIONS: Migration[] = [
       landmarks: {},
       rng: typeof save.createdAt === 'number' ? save.createdAt >>> 0 : 1,
     }),
+  },
+  {
+    // Version 3 added daily goals and the login calendar.
+    from: 2,
+    migrate: (save) => ({ ...save, daily: NO_DAILY }),
   },
 ];
 
@@ -62,7 +68,16 @@ const saveSchema = z.object({
         at: z.number(),
         currency: z.enum(['coins', 'gems']),
         amount: z.number().int(),
-        reason: z.enum(['order', 'level_up', 'buy_shop', 'upgrade_shop', 'upgrade_pantry', 'restore_landmark']),
+        reason: z.enum([
+          'order',
+          'level_up',
+          'buy_shop',
+          'upgrade_shop',
+          'upgrade_pantry',
+          'restore_landmark',
+          'daily_goal',
+          'daily_calendar',
+        ]),
         balance: z.number().int(),
       }),
     ),
@@ -74,6 +89,20 @@ const saveSchema = z.object({
     nextId: z.number().int().positive(),
   }),
   landmarks: z.record(z.string(), z.object({ stage: z.number().int().nonnegative() })),
+  daily: z.object({
+    day: z.number().int(),
+    goals: z.array(
+      z.object({
+        kind: z.enum(DAILY_GOAL_KINDS),
+        target: z.number().int().positive(),
+        progress: z.number().int().nonnegative(),
+        coins: z.number().int().nonnegative(),
+        claimed: z.boolean(),
+      }),
+    ),
+    bonusClaimed: z.boolean(),
+    calendar: z.object({ claimed: z.number().int().nonnegative(), lastDay: z.number().int().nullable() }),
+  }),
   rng: z.number().int().nonnegative(),
 });
 
@@ -92,10 +121,8 @@ export function runMigrations(
 ): Record<string, unknown> {
   let current = save;
   let version = current.version;
-  if (typeof version !== 'number' || !Number.isInteger(version))
-    throw new SaveError('Save has no version number');
-  if (version > target)
-    throw new SaveError(`Save is version ${version}, newer than this build (${target})`);
+  if (typeof version !== 'number' || !Number.isInteger(version)) throw new SaveError('Save has no version number');
+  if (version > target) throw new SaveError(`Save is version ${version}, newer than this build (${target})`);
   while (version < target) {
     const step = migrations.find((m) => m.from === version);
     if (!step) throw new SaveError(`No migration from save version ${version}`);
@@ -113,11 +140,7 @@ export function serializeSave(state: GameState): string {
  * Parses, migrates and validates a save, then reconciles it with the current
  * content. Throws SaveError if the save cannot be used.
  */
-export function deserializeSave(
-  raw: string,
-  content: Content,
-  migrations: Migration[] = MIGRATIONS,
-): GameState {
+export function deserializeSave(raw: string, content: Content, migrations: Migration[] = MIGRATIONS): GameState {
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);

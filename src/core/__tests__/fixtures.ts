@@ -102,6 +102,31 @@ export const testContent = loadContent({
         { minLevel: 2, max: 3 },
       ],
     },
+    daily: {
+      goals: [
+        {
+          kind: 'fill_orders',
+          targets: [
+            { minLevel: 1, target: 2 },
+            { minLevel: 2, target: 4 },
+          ],
+        },
+        { kind: 'collect_goods', targets: [{ minLevel: 1, target: 3 }] },
+        { kind: 'earn_coins', targets: [{ minLevel: 1, target: 20 }] },
+        { kind: 'start_batches', targets: [{ minLevel: 1, target: 2 }] },
+      ],
+      goalCoinsPerLevel: 10,
+      allGoalsGems: 2,
+      calendar: [
+        { coinsPerLevel: 5, gems: 0 },
+        { coinsPerLevel: 6, gems: 0 },
+        { coinsPerLevel: 0, gems: 1 },
+        { coinsPerLevel: 8, gems: 0 },
+        { coinsPerLevel: 9, gems: 0 },
+        { coinsPerLevel: 0, gems: 2 },
+        { coinsPerLevel: 20, gems: 5 },
+      ],
+    },
   },
   street: { lotCount: 8 },
 });
