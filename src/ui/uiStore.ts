@@ -6,8 +6,12 @@ import type { Level } from '../content/schema';
  * What the interface is showing: the open sheet, level-ups waiting to be
  * shown, and toasts. None of it is saved or affects the game.
  */
-export type SheetState = { kind: 'shop'; id: string } | { kind: 'landmark'; id: string } | { kind: 'pantry' }
+export type SheetState =
+  | { kind: 'shop'; id: string }
+  | { kind: 'landmark'; id: string }
+  | { kind: 'pantry' }
   | { kind: 'settings' }
+  | { kind: 'daily' }
   | null;
 
 export type LevelUp = {

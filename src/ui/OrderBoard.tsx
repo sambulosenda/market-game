@@ -5,6 +5,7 @@ import { content } from '../content';
 import { canFillOrder, type Order, orderCoins } from '../core';
 import { gameStore, useGame } from '../store';
 import { Bouncy } from './Bouncy';
+import { DailyButton } from './DailyButton';
 import { report } from './feedback';
 import { setRewardOrigin } from './fx/RewardFx';
 import { GoodIcon } from './GoodIcon';
@@ -26,6 +27,8 @@ export function OrderBoard() {
         <Txt variant="heading" accessibilityRole="header">
           {strings.orders}
         </Txt>
+        <View style={styles.grow} />
+        <DailyButton />
         <Bouncy
           accessibilityRole="button"
           accessibilityLabel={strings.a11y.settingsButton}
@@ -146,7 +149,8 @@ function WaitingSlot({ refillAt }: { refillAt: number }) {
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.page },
   list: { padding: space.lg, gap: space.sm },
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  grow: { flex: 1 },
   gear: {
     width: TAP,
     height: TAP,

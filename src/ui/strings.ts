@@ -99,6 +99,29 @@ export const strings = {
   welcomeBackBody: 'While you were away, your street made:',
   goodTimes: (name: string, n: number) => `${name} × ${n}`,
 
+  // Daily goals and the gift calendar
+  daily: {
+    button: 'Goals',
+    title: "Today's goals",
+    newIn: (time: string) => `New goals in ${time}`,
+    goal: {
+      fill_orders: (n: number) => `Fill ${n} ${plural(n, 'order', 'orders')}`,
+      collect_goods: (n: number) => `Collect ${n} ${plural(n, 'good', 'goods')}`,
+      earn_coins: (n: number): string => `Earn ${strings.number(n)} coins from orders`,
+      start_batches: (n: number) => `Start making ${n} ${plural(n, 'thing', 'things')}`,
+    },
+    claim: 'Claim',
+    claimed: 'Claimed',
+    bonus: 'Claim all three for a bonus',
+    bonusDone: 'Bonus claimed',
+    bonusCount: (done: number, total: number) => `${done} of ${total} claimed`,
+    calendarTitle: 'Daily gift',
+    calendarHint: 'One gift each day you visit. Missing a day never sets you back.',
+    day: (n: number) => `Day ${n}`,
+    claimGift: "Take today's gift",
+    giftTaken: 'Come back tomorrow',
+  },
+
   // Settings
   settings: {
     title: 'Settings',
@@ -126,6 +149,8 @@ export const strings = {
     pantry_full: 'Your pantry is full. Fill an order to make room.',
     not_enough_coins: 'You need more coins for that.',
     missing_goods: 'You do not have all the goods yet.',
+    goal_not_done: 'That goal is not finished yet.',
+    already_claimed: 'You have already claimed that.',
     level_too_low: 'You need a higher level for that.',
     recipe_locked: 'That recipe is still locked.',
   } as Partial<Record<FailReason, string>>,
@@ -134,6 +159,18 @@ export const strings = {
   a11y: {
     street: 'The street. Swipe sideways to look around.',
     settingsButton: 'Settings',
+    dailyButton: (waiting: number) =>
+      waiting > 0 ? `Daily goals, ${waiting} ${plural(waiting, 'reward', 'rewards')} to claim` : 'Daily goals',
+    dailyGoal: (label: string, progress: number, target: number) => `${label}, ${progress} of ${target}`,
+    calendarDay: (day: number, coins: number, gems: number, taken: boolean) =>
+      [
+        `Day ${day}`,
+        coins > 0 ? `${coins} ${plural(coins, 'coin', 'coins')}` : '',
+        gems > 0 ? `${gems} ${plural(gems, 'gem', 'gems')}` : '',
+        taken ? 'taken' : '',
+      ]
+        .filter(Boolean)
+        .join(', '),
     places: 'Places on the street',
     shopForSale: (name: string, coins: number) => `${name}, not open yet. Costs ${coins} coins.`,
     shopLocked: (name: string, level: number) => `${name}, opens at level ${level}`,
