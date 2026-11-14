@@ -14,6 +14,8 @@ type Props = {
   trailing?: ReactNode;
   small?: boolean;
   accessibilityLabel?: string;
+  /** 'link' for a button that opens a web page. */
+  accessibilityRole?: 'button' | 'link';
   /** Turn off when the action gives its own haptic. */
   haptic?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -28,6 +30,7 @@ export function Button({
   trailing,
   small,
   accessibilityLabel,
+  accessibilityRole = 'button',
   haptic,
   style,
 }: Props) {
@@ -35,7 +38,7 @@ export function Button({
   const onDark = kind === 'primary' && !disabled;
   return (
     <Bouncy
-      accessibilityRole="button"
+      accessibilityRole={accessibilityRole}
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: !!disabled }}
       disabled={disabled}
