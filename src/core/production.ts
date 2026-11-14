@@ -19,6 +19,11 @@ export function shopLevelConfig(content: Content, shopId: string, shop: ShopStat
   return levels[Math.min(Math.max(shop.level, 1), levels.length) - 1];
 }
 
+/** How many batches the shop's queue holds: its level's slots plus any bought with gems. */
+export function shopQueueSize(content: Content, shopId: string, shop: ShopState): number {
+  return shopLevelConfig(content, shopId, shop).queueSize + (shop.extraSlots ?? 0);
+}
+
 /** How long a batch takes at a shop level. `speed` is the landmark multiplier, 1 with none. */
 export function recipeDurationMs(content: Content, recipeId: string, level: ShopLevel, speed = 1): number {
   return Math.round(content.recipes[recipeId].durationSec * 1000 * level.durationMultiplier * speed);
@@ -48,7 +53,7 @@ export function startBatch(
   if (recipe.shop !== shopId) return { ok: false, reason: 'wrong_shop' };
   if (!recipeAvailable(state, content, recipeId)) return { ok: false, reason: 'recipe_locked' };
   const level = shopLevelConfig(content, shopId, shop);
-  if (shop.queue.length >= level.queueSize) return { ok: false, reason: 'queue_full' };
+  if (shop.queue.length >= shopQueueSize(content, shopId, shop)) return { ok: false, reason: 'queue_full' };
   if (!hasInputs(state, content, recipeId)) return { ok: false, reason: 'missing_inputs' };
 
   const t = effectiveNow(state, now);
@@ -139,7 +144,7 @@ export type ShopView = {
 export function viewShop(state: GameState, content: Content, shopId: string, now: number): ShopView {
   const shop = state.shops[shopId];
   const t = effectiveNow(state, now);
-  const queueSize = shopLevelConfig(content, shopId, shop).queueSize;
+  const queueSize = shopQueueSize(content, shopId, shop);
   const batches = shop.queue.map((batch): BatchView => {
     const endsAt = batchEndsAt(batch);
     if (endsAt <= t) return { batch, status: 'ready', progress: 1, endsAt };

@@ -99,6 +99,21 @@ export const strings = {
   welcomeBackBody: 'While you were away, your street made:',
   goodTimes: (name: string, n: number) => `${name} × ${n}`,
 
+  // Spending gems
+  gems: {
+    skip: 'Finish now',
+    slot: 'Add a slot',
+    skipTitle: 'Finish it now?',
+    skipBody: (good: string, gems: number) =>
+      `${good} will be ready straight away for ${gems} ${plural(gems, 'gem', 'gems')}.`,
+    slotTitle: 'Add a queue slot?',
+    slotBody: (shop: string, gems: number) =>
+      `The ${shop.toLowerCase()} will hold one more thing in its queue, for good, for ${gems} ${plural(gems, 'gem', 'gems')}.`,
+    spend: 'Spend',
+    keep: 'Keep my gems',
+    short: (have: number) => `You have ${have} ${plural(have, 'gem', 'gems')}.`,
+  },
+
   // Daily goals and the gift calendar
   daily: {
     button: 'Goals',
@@ -148,6 +163,8 @@ export const strings = {
     missing_inputs: 'You need more ingredients for that.',
     pantry_full: 'Your pantry is full. Fill an order to make room.',
     not_enough_coins: 'You need more coins for that.',
+    not_enough_gems: 'You need more gems for that.',
+    nothing_baking: 'Nothing is being made right now.',
     missing_goods: 'You do not have all the goods yet.',
     goal_not_done: 'That goal is not finished yet.',
     already_claimed: 'You have already claimed that.',

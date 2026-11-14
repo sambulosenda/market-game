@@ -25,6 +25,8 @@ export type ShopState = {
    * its slot until it is collected.
    */
   queue: Batch[];
+  /** Queue slots bought with gems, on top of the level's. Missing means none. */
+  extraSlots?: number;
 };
 
 export type Currency = 'coins' | 'gems';
@@ -38,7 +40,9 @@ export type TransactionReason =
   | 'restore_landmark'
   | 'daily_goal'
   | 'daily_calendar'
-  | 'tip';
+  | 'tip'
+  | 'skip_timer'
+  | 'queue_slot';
 
 /** One change to the wallet. `amount` is negative for spending. */
 export type Transaction = {
@@ -132,7 +136,9 @@ export type GameEvent =
   | { type: 'landmarkStageRestored'; landmark: string; stage: number; complete: boolean }
   | { type: 'dailyGoalClaimed'; kind: DailyGoalKind; coins: number; gems: number }
   | { type: 'calendarGiftClaimed'; day: number; coins: number; gems: number }
-  | { type: 'customerTipped'; coins: number };
+  | { type: 'customerTipped'; coins: number }
+  | { type: 'timerSkipped'; shop: string; batchId: number; gems: number }
+  | { type: 'queueSlotBought'; shop: string; extraSlots: number; gems: number };
 
 export type FailReason =
   | 'unknown_shop'
@@ -148,6 +154,8 @@ export type FailReason =
   | 'level_too_low'
   | 'max_level'
   | 'not_enough_coins'
+  | 'not_enough_gems'
+  | 'nothing_baking'
   | 'unknown_order'
   | 'missing_goods'
   | 'unknown_landmark'

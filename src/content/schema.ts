@@ -122,6 +122,12 @@ export const economySchema = z.strictObject({
     /** The most of one good an order asks for, from a player level up. */
     maxQty: byLevel({ max: z.number().int().positive() }),
   }),
+  gems: z.strictObject({
+    /** Finishing a baking batch costs one gem for each of these minutes left, rounded up. */
+    skipMinutesPerGem: z.number().positive(),
+    /** The gems each extra queue slot costs, in order. Its length is how many a shop can have. */
+    extraQueueSlotCosts: z.array(z.number().int().positive()).max(3),
+  }),
   /** A walking customer's tip = `base` + `perLevel` times the player's level, rounded down. */
   tips: z.strictObject({ base: z.number().nonnegative(), perLevel: z.number().nonnegative() }),
   daily: z.strictObject({

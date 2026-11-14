@@ -12,7 +12,7 @@ import {
   recipeAvailable,
   refreshOrders,
   restoreLandmark,
-  shopLevelConfig,
+  shopQueueSize,
   startBatch,
   upgradePantry,
   upgradeShop,
@@ -184,7 +184,7 @@ function nextRecipe(state: GameState, content: Content, recipeFor: Record<string
   }
   const free = (shopId: string) => {
     const shop = state.shops[shopId];
-    return !!shop && shop.queue.length < shopLevelConfig(content, shopId, shop).queueSize;
+    return !!shop && shop.queue.length < shopQueueSize(content, shopId, shop);
   };
 
   // What is wanted: order items, and the goods for the next landmark stage.
