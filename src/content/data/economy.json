@@ -1,6 +1,7 @@
 {
   "startingCoins": 20,
   "startingGems": 5,
+  "firstBatchSec": 5,
   "pantry": {
     "levels": [
       {
@@ -26,6 +27,26 @@
     ]
   },
   "orders": {
+    "opening": [
+      [
+        {
+          "good": "loaf",
+          "qty": 1
+        }
+      ],
+      [
+        {
+          "good": "bread_rolls",
+          "qty": 1
+        }
+      ],
+      [
+        {
+          "good": "loaf",
+          "qty": 2
+        }
+      ]
+    ],
     "skipCooldownSec": 300,
     "coinMultiplier": 1.5,
     "extraKindBonus": 0.15,

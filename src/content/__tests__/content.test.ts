@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { createInitialState } from '../../core/state';
 import economy from '../data/economy.json';
 import goods from '../data/goods.json';
 import landmarks from '../data/landmarks.json';
@@ -25,6 +26,15 @@ describe('bundled content', () => {
   it('is valid', () => {
     const content = loadContent(raw);
     expect(content.levels).toHaveLength(25);
+  });
+
+  it('opens a new game with three different orders, each one a player can make at level 1', () => {
+    const content = loadContent(raw);
+    const opening = content.economy.orders.opening;
+    expect(opening).toHaveLength(content.levels[0].orderSlots);
+    expect(new Set(opening.map((items) => JSON.stringify(items))).size).toBe(opening.length);
+    const made = createInitialState(content, 0).orders.slots.map((slot) => ('order' in slot ? slot.order.items : null));
+    expect(made).toEqual(opening);
   });
 
   it('has the v1 content: 5 shops with 8 goods each, and 3 landmarks, opening at the planned levels', () => {

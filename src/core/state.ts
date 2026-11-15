@@ -1,7 +1,7 @@
 import type { Content } from '../content/schema';
 import { NO_ALBUM, reconcileAlbum } from './collections';
 import { NO_DAILY } from './daily';
-import { refreshOrders } from './orders';
+import { openingOrders, refreshOrders } from './orders';
 import { type GameState, type OrderSlot, SAVE_VERSION, type ShopState } from './types';
 
 /**
@@ -32,7 +32,7 @@ export function createInitialState(content: Content, now: number, seed: number =
     purchased: [],
     rng: seed >>> 0,
   };
-  return refreshOrders(state, content, now);
+  return refreshOrders({ ...state, orders: openingOrders(state, content) }, content, now);
 }
 
 const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);

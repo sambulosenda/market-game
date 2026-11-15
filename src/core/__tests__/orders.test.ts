@@ -66,7 +66,9 @@ describe('order generator', () => {
 
   it('is repeatable: the same seed makes the same orders', () => {
     expect(fresh(99).orders).toEqual(fresh(99).orders);
-    const boards = new Set([1, 2, 3, 4, 5, 6, 7, 8].map((seed) => JSON.stringify(orders(fresh(seed)).map((o) => o.items))));
+    const boards = new Set(
+      [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => JSON.stringify(orders(fresh(seed)).map((o) => o.items))),
+    );
     expect(boards.size).toBeGreaterThan(1);
   });
 
@@ -99,7 +101,12 @@ describe('order generator', () => {
   it('prices an order: value times the multiplier, plus a bonus for each extra kind', () => {
     expect(baseOrderCoins(testContent, [{ good: 'loaf', qty: 2 }])).toBe(18);
     // (2 × 6 + 1 × 20) × 1.5 × 1.2
-    expect(baseOrderCoins(testContent, [{ good: 'loaf', qty: 2 }, { good: 'butter', qty: 1 }])).toBe(58);
+    expect(
+      baseOrderCoins(testContent, [
+        { good: 'loaf', qty: 2 },
+        { good: 'butter', qty: 1 },
+      ]),
+    ).toBe(58);
     for (const o of orders(fresh(3, withDairy()))) {
       expect(o.coins).toBe(baseOrderCoins(testContent, o.items));
       expect(o.xp).toBe(o.items.reduce((n, i) => n + i.qty * testContent.goods[i.good].xp, 0));
@@ -124,7 +131,11 @@ describe('order generator', () => {
     };
     let butter = 0;
     for (let seed = 1; seed <= 100; seed++) {
-      const s = refreshOrders({ ...createInitialState(tilted, T0, seed), ...withDairy(), orders: { slots: [], nextId: 1 } }, tilted, T0);
+      const s = refreshOrders(
+        { ...createInitialState(tilted, T0, seed), ...withDairy(), orders: { slots: [], nextId: 1 } },
+        tilted,
+        T0,
+      );
       butter += orders(s).filter((o) => o.items[0].good === 'butter').length;
     }
     expect(butter).toBeLessThan(3);
@@ -197,5 +208,34 @@ describe('filling and skipping orders', () => {
   it('returns the same state when there is nothing to refresh', () => {
     const s = fresh(5);
     expect(refreshOrders(s, testContent, T0 + 60 * MIN)).toBe(s);
+  });
+});
+
+describe('a new game', () => {
+  const withOpening = (opening: { good: string; qty: number }[][]) => ({
+    ...testContent,
+    economy: { ...testContent.economy, orders: { ...testContent.economy.orders, opening } },
+  });
+
+  it('opens with the fixed orders from the content, priced like any other order', () => {
+    const content = withOpening([[{ good: 'loaf', qty: 2 }]]);
+    const s = createInitialState(content, T0, 1);
+    expect(s.orders.slots).toHaveLength(2);
+    expect(s.orders.slots[0]).toEqual({
+      order: {
+        id: 1,
+        items: [{ good: 'loaf', qty: 2 }],
+        coins: baseOrderCoins(content, [{ good: 'loaf', qty: 2 }]),
+        xp: 2 * content.goods.loaf.xp,
+      },
+    });
+    // The slot after the opening orders is filled at random as before.
+    expect(s.orders.slots[1]).toMatchObject({ order: { id: 2 } });
+  });
+
+  it('leaves out an opening order the player cannot make yet, and any beyond the slots they have', () => {
+    const loaf = [{ good: 'loaf', qty: 1 }];
+    const s = createInitialState(withOpening([[{ good: 'butter', qty: 1 }], loaf, loaf, loaf]), T0, 1);
+    expect(s.orders.slots.map((slot) => ('order' in slot ? slot.order.items : null))).toEqual([loaf, loaf]);
   });
 });

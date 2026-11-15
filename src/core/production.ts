@@ -75,7 +75,11 @@ export function startBatch(
     id: state.nextBatchId,
     recipe: recipeId,
     startAt: last ? Math.max(t, batchEndsAt(last)) : t,
-    durationMs: recipeDurationMs(content, recipeId, level, recipeSpeedMultiplier(state, content, recipeId)),
+    durationMs: Math.min(
+      recipeDurationMs(content, recipeId, level, recipeSpeedMultiplier(state, content, recipeId)),
+      // A new game's very first batch is quick, so the player's first reward comes at once.
+      state.nextBatchId === 1 ? content.economy.firstBatchSec * 1000 : Infinity,
+    ),
   };
   const next: GameState = {
     ...state,
