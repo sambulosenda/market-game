@@ -12,7 +12,7 @@ import Animated, {
 import { useStore } from 'zustand';
 
 import { content } from '../../content';
-import { getShopAnchor, type Point } from '../../scene/anchors';
+import { getShopAnchor, INDICATOR_REACH, type Point } from '../../scene/anchors';
 import { useGame } from '../../store';
 import { originOf } from '../fx/measure';
 import { colors } from '../theme';
@@ -45,8 +45,13 @@ type Spot = { key: string; x: number; y: number; flip: boolean; scale: number };
 
 async function locate(target: TutorialTarget): Promise<{ point: Point; below: Point } | null> {
   if (target.kind === 'lot') {
-    const point = await getShopAnchor(target.shop);
-    return point ? { point, below: point } : null;
+    // The anchor is the middle of the shop's indicator, so point at its edges and leave the bubble readable.
+    const centre = await getShopAnchor(target.shop);
+    if (!centre) return null;
+    return {
+      point: { x: centre.x, y: centre.y - INDICATOR_REACH.up },
+      below: { x: centre.x, y: centre.y + INDICATOR_REACH.down },
+    };
   }
   const rect = await measureTarget(target.id);
   if (!rect) return null;
