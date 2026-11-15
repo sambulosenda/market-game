@@ -36,6 +36,11 @@ export const MIGRATIONS: Migration[] = [
     from: 2,
     migrate: (save) => ({ ...save, daily: NO_DAILY }),
   },
+  {
+    // Version 4 added the count of goods made, for shop mastery.
+    from: 3,
+    migrate: (save) => ({ ...save, made: {} }),
+  },
 ];
 
 const batchSchema = z.object({
@@ -113,6 +118,7 @@ const saveSchema = z.object({
     bonusClaimed: z.boolean(),
     calendar: z.object({ claimed: z.number().int().nonnegative(), lastDay: z.number().int().nullable() }),
   }),
+  made: z.record(z.string(), z.number().int().nonnegative()),
   rng: z.number().int().nonnegative(),
 });
 

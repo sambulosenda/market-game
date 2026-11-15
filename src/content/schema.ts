@@ -129,6 +129,19 @@ export const economySchema = z.strictObject({
     maxPerDay: z.number().int().min(0).max(2),
     minGapMinutes: z.number().int().nonnegative(),
   }),
+  /**
+   * Shop mastery. A good earns a star each time the number of it ever made reaches the next
+   * entry of `starsAt`, and each star makes that good this many percent quicker to make.
+   */
+  mastery: z
+    .strictObject({
+      starsAt: z.array(z.number().int().positive()).min(1).max(5),
+      speedPercentPerStar: z.number().min(0).max(10),
+    })
+    .refine((m) => m.starsAt.every((n, i) => i === 0 || n > m.starsAt[i - 1]), {
+      message: 'starsAt must go up',
+      path: ['starsAt'],
+    }),
   gems: z.strictObject({
     /** Finishing a baking batch costs one gem for each of these minutes left, rounded up. */
     skipMinutesPerGem: z.number().positive(),

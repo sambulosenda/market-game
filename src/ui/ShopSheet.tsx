@@ -4,14 +4,15 @@ import { Image, StyleSheet, View } from 'react-native';
 import { ui } from '../art';
 import { content, type Recipe } from '../content';
 import {
-  batchSpeedMultiplier,
   type GameState,
   pantrySpace,
   queueSlotCost,
   recipeAvailable,
   recipeDurationMs,
+  recipeSpeedMultiplier,
   shopLevelConfig,
   skipTimerCost,
+  viewMastery,
   viewShop,
 } from '../core';
 import { gameStore, useGame } from '../store';
@@ -19,7 +20,7 @@ import { Bouncy } from './Bouncy';
 import { report } from './feedback';
 import { GoodIcon } from './GoodIcon';
 import { GoodNeed } from './GoodNeed';
-import { Amount, Button, Popup, ProgressBar, Sheet, Txt, Well } from './kit';
+import { Amount, Button, Popup, ProgressBar, Sheet, Stars, Txt, Well } from './kit';
 import { strings } from './strings';
 import { colors, radius, space, TAP } from './theme';
 import { targetIds } from './tutorial/steps';
@@ -44,7 +45,6 @@ function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
   const shop = game.shops[shopId];
   const view = viewShop(game, content, shopId, now);
   const level = shopLevelConfig(content, shopId, shop);
-  const speed = batchSpeedMultiplier(game, content);
   const queueFull = view.batches.length >= view.queueSize;
   const next = config.levels[shop.level];
   const clock = Math.max(now, game.clock);
@@ -148,6 +148,9 @@ function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
         )}
 
         <Txt variant="heading">{strings.recipes}</Txt>
+        <Txt variant="small" soft>
+          {strings.mastery.hint(content.economy.mastery.speedPercentPerStar)}
+        </Txt>
         {queueFull && (
           <Txt variant="small" soft>
             {strings.queueFull}
@@ -159,7 +162,9 @@ function OwnedShop({ shopId, game }: { shopId: string; game: GameState }) {
               <RecipeRow
                 recipe={recipe}
                 game={game}
-                durationSec={recipeDurationMs(content, recipe.id, level, speed) / 1000}
+                durationSec={
+                  recipeDurationMs(content, recipe.id, level, recipeSpeedMultiplier(game, content, recipe.id)) / 1000
+                }
                 queueFull={queueFull}
               />
             </Target>
@@ -275,10 +280,11 @@ function RecipeRow({
 
   const hasInputs = recipe.inputs.every((i) => (game.pantry[i.good] ?? 0) >= i.qty);
   const blocked = queueFull || !hasInputs || !shop;
+  const mastery = viewMastery(game, content, recipe.output);
   return (
     <Bouncy
       accessibilityRole="button"
-      accessibilityLabel={strings.a11y.makeRecipe(name, duration)}
+      accessibilityLabel={`${strings.a11y.makeRecipe(name, duration)}. ${strings.mastery.a11y(mastery)}`}
       accessibilityState={{ disabled: blocked }}
       haptic={false}
       // A blocked recipe still takes the tap, so the player is told why.
@@ -291,6 +297,14 @@ function RecipeRow({
         <Txt variant="small" soft>
           {duration}
         </Txt>
+        <View style={styles.mastery}>
+          <Stars earned={mastery.stars} max={mastery.maxStars} size={13} />
+          {mastery.nextAt !== null && (
+            <Txt variant="small" soft style={styles.tabular}>
+              {strings.mastery.count(mastery.made, mastery.nextAt)}
+            </Txt>
+          )}
+        </View>
       </View>
       {recipe.inputs.length > 0 && (
         <View style={styles.inputs}>
@@ -401,6 +415,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
   recipeText: { flex: 1 },
+  mastery: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: 2 },
   inputs: {
     flexDirection: 'row',
     flexWrap: 'wrap',

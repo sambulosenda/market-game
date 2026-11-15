@@ -210,5 +210,15 @@
     "quietEndHour": 9,
     "maxPerDay": 2,
     "minGapMinutes": 60
+  },
+  "mastery": {
+    "starsAt": [
+      10,
+      40,
+      120,
+      300,
+      700
+    ],
+    "speedPercentPerStar": 3
   }
 }

@@ -6,7 +6,7 @@
  */
 import type { GoodQty, Level } from '../content/schema';
 
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 /** One batch in a shop's queue. Timers are timestamps, never tickers. */
 export type Batch = {
@@ -120,6 +120,8 @@ export type GameState = {
   /** Restoration stages finished, by landmark id. Missing means none. */
   landmarks: Record<string, { stage: number }>;
   daily: Daily;
+  /** How many of each good the player has ever collected, by good id. Mastery stars come from this. */
+  made: Record<string, number>;
   /** State of the random number generator, so order generation can be replayed. */
   rng: number;
 };
@@ -127,6 +129,7 @@ export type GameState = {
 export type GameEvent =
   | { type: 'batchStarted'; shop: string; recipe: string; batchId: number; endsAt: number }
   | { type: 'batchCollected'; shop: string; good: string; qty: number }
+  | { type: 'masteryStarEarned'; good: string; stars: number }
   | { type: 'orderFilled'; orderId: number; coins: number; xp: number }
   | { type: 'orderSkipped'; orderId: number; refillAt: number }
   | { type: 'levelUp'; level: number; gems: number; unlocks: Level['unlocks'] }
