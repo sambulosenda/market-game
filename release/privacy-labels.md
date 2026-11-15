@@ -1,6 +1,8 @@
 # Privacy, age rating and compliance answers
 
-These answers describe the launch build: PostHog for analytics, Sentry for crash reports, RevenueCat for purchases, Supabase for anonymous cloud save, local notifications, no adverts, no account, no advertising identifier. If one of those services is not in the build that ships, drop its rows here and in `docs/privacy.md`.
+These answers describe the build on `main`: PostHog for analytics and error reports, RevenueCat for purchases, the saved game kept on the phone only, local notifications, no adverts, no account, no advertising identifier. Check them against the build again before submission.
+
+If cloud save (Supabase) ships, add "User Content: Gameplay Content" (App Functionality, not linked) to Apple's table and "App activity: Other user-generated content" to Google's, and put the backup back into `docs/privacy.md` and `docs/support.md`. If Sentry ships, name it beside PostHog in the diagnostics rows and in the policy.
 
 The answers say "not linked to the user" because the only identifier is a random ID per installation and the game never collects a name, email address or other contact detail. That stops being true the day the game adds sign-in with Apple, Google or email.
 
@@ -10,33 +12,29 @@ The answers say "not linked to the user" because the only identifier is a random
 
 | Data type | Collected | Purposes | Linked to the user | Used for tracking | Comes from |
 | --- | --- | --- | --- | --- | --- |
-| Identifiers: User ID | Yes | App Functionality, Analytics | No | No | Supabase, RevenueCat and PostHog installation IDs |
+| Identifiers: User ID | Yes | App Functionality, Analytics | No | No | RevenueCat and PostHog installation IDs |
 | Purchases: Purchase History | Yes | App Functionality, Analytics | No | No | RevenueCat |
-| User Content: Gameplay Content | Yes | App Functionality | No | No | Supabase cloud save |
 | Usage Data: Product Interaction | Yes | Analytics | No | No | PostHog |
-| Diagnostics: Crash Data | Yes | App Functionality | No | No | Sentry |
-| Diagnostics: Performance Data | Yes | App Functionality | No | No | Sentry |
+| Diagnostics: Crash Data | Yes | App Functionality | No | No | PostHog error tracking |
 
-Everything else: **not collected**. That includes Contact Info, Location (the country is derived from the IP address and the address is not stored, which Apple does not count as collecting location), Device ID (the game does not read the advertising identifier or the vendor identifier), Contacts, Photos, Health, Financial Info, Browsing History and Search History.
+Everything else: **not collected**. That includes Gameplay Content (the saved game stays on the phone), Performance Data, Contact Info, Location (the country is derived from the IP address and the address is not stored, which Apple does not count as collecting location), Device ID (the game does not read the advertising identifier or the vendor identifier), Contacts, Photos, Health, Financial Info, Browsing History and Search History.
 
 Tracking: **No.** The app does not show the App Tracking Transparency prompt and must not include `NSUserTrackingUsageDescription`.
 
-For this to stay true, the build needs: PostHog set to discard the client IP address (a project setting in PostHog), no session replay, and Sentry set not to send default personal data (`sendDefaultPii: false`).
+For this to stay true, the build needs: PostHog set to discard the client IP address (a project setting in PostHog) and no session replay.
 
 ## Google Play: Data safety
 
 - Does the app collect or share any of the required user data types? **Yes.**
 - Is all of the data encrypted in transit? **Yes.**
-- Do you provide a way for users to request that their data is deleted? **Yes.** In the app (Settings, Delete my data) and by email. Deletion URL: https://sambulosenda.github.io/market-game/support/
+- Do you provide a way for users to request that their data is deleted? **Yes**, by email. Delete my data in Settings removes the saved game from the phone and resets the analytics ID, but it does not delete events PostHog already holds. Those are deleted on request by email, using the player's ID. Deletion URL: https://sambulosenda.github.io/market-game/support/
 
 | Data type | Collected | Shared | Processed ephemerally | Required | Purposes |
 | --- | --- | --- | --- | --- | --- |
 | Personal info: User IDs | Yes | No | No | Required | App functionality, Analytics |
 | Financial info: Purchase history | Yes | No | No | Required | App functionality, Analytics |
 | App activity: App interactions | Yes | No | No | Required | Analytics |
-| App activity: Other user-generated content (the saved game) | Yes | No | No | Required | App functionality |
 | App info and performance: Crash logs | Yes | No | No | Required | App functionality |
-| App info and performance: Diagnostics | Yes | No | No | Required | App functionality |
 
 "Shared" is No because Google does not count data sent to service providers that process it on the developer's behalf.
 

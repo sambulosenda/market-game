@@ -24,7 +24,7 @@ We may change the game's balance, such as costs, rewards and timers, to keep it 
 
 ## Fair play
 
-Please do not cheat, use tools that change the game or its data, or interfere with our services. If you do, we may remove progress or items gained that way, or stop providing backup for that game.
+Please do not cheat, use tools that change the game or its data, or interfere with our services. If you do, we may remove progress or items gained that way.
 
 ## Your data
 

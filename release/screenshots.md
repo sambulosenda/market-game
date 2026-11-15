@@ -5,10 +5,12 @@
 | Store | Size | Count |
 | --- | --- | --- |
 | App Store, iPhone 6.9 inch | 1320 x 2868, portrait, PNG or JPEG with no transparency | 3 to 10. Plan: 6 |
-| Google Play, phone | 1080 x 1920 or larger, 9:16, PNG or JPEG | 2 to 8. Plan: the same 6 |
+| Google Play, phone | 1080 x 1920, 9:16, PNG or JPEG. The long side may be at most twice the short side. | 2 to 8. Plan: the same 6 scenes, captured again |
 | Google Play, feature graphic | 1024 x 500 | 1 |
 
 The iPhone 17 Pro Max takes screenshots at exactly 1320 x 2868, so screenshots taken on the test phone can be uploaded as they are. Apple scales the 6.9 inch set down for smaller iPhones. The app does not support iPad (`supportsTablet: false`), so no iPad screenshots are needed.
+
+The iPhone captures cannot be reused for Google Play as they are: 1320 x 2868 is taller than Play's 2:1 limit. Take the Play set on an Android phone or emulator at 1080 x 1920, or place each iPhone capture on a 1080 x 1920 framed canvas.
 
 ## The six shots
 

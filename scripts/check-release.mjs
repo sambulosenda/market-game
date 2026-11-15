@@ -35,6 +35,7 @@ if (!eas.submit?.production?.ios?.ascAppId) {
 
 // App Store text limits
 const limits = { title: 30, subtitle: 30, promoText: 170, description: 4000, releaseNotes: 4000 };
+if (Object.keys(store.info ?? {}).length === 0) problems.push('store.config.json has no listing text (apple.info is empty)');
 for (const [locale, info] of Object.entries(store.info ?? {})) {
   for (const [field, max] of Object.entries(limits)) {
     const length = [...(info[field] ?? '')].length;

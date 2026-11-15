@@ -11,16 +11,15 @@ Market Street is made by {{ site.developer_name }} ("we"). This policy explains 
 | Data | Why | Who processes it |
 | --- | --- | --- |
 | A random ID for your installation. It is not your name, email address or advertising ID. | To tell one player's game from another's | The services below |
-| Your saved game: your shops, goods, coins, gems, level and settings | To back up your street and restore it on another phone | Supabase |
 | What you do in the game, such as finishing the tutorial, opening a shop or reaching a level, with your phone model, system version, language and country | To learn where players get stuck and to balance the game | PostHog |
-| Crash reports and performance data, with your phone model and system version | To find and fix bugs | Sentry |
+| Error and crash reports, with your phone model and system version | To find and fix bugs | PostHog |
 | What you bought in the game and when | To give you what you paid for and to restore purchases | RevenueCat, with Apple or Google |
 
 Your payment is taken by Apple or Google. We never see your card details.
 
 Like any app that talks to a server, these services receive your IP address when the game connects. We use it only to work out your country, and we do not store it in our analytics.
 
-Notifications are scheduled on your phone. The game does not send your notification settings anywhere.
+Your street itself, with your shops, goods, coins, gems and settings, is saved on your phone and is not sent to us. Notifications are scheduled on your phone too.
 
 ## What the game does not do
 
@@ -31,19 +30,19 @@ Notifications are scheduled on your phone. The game does not send your notificat
 
 ## Why we are allowed to use this data
 
-If you live in the UK or the European Economic Area, the law asks us to say what our legal grounds are. We back up your game and handle purchases because that is needed to provide the game you asked for. We collect gameplay statistics and crash reports because we have a legitimate interest in fixing and improving the game, and we keep them free of your name and contact details.
+If you live in the UK or the European Economic Area, the law asks us to say what our legal grounds are. We handle purchases because that is needed to provide what you bought. We collect gameplay statistics and crash reports because we have a legitimate interest in fixing and improving the game, and we keep them free of your name and contact details.
 
 ## Who we share it with
 
-Only the companies that run these services for us: Supabase (game backup), PostHog (statistics), Sentry (crash reports), RevenueCat (purchases), and Apple or Google (payments). They may process data outside your country, including in the United States, under the safeguards the law requires. We do not sell your data or share it for advertising.
+Only the companies that run these services for us: PostHog (statistics and error reports, stored in the European Union), RevenueCat (purchases), and Apple or Google (payments). They may process data outside your country, including in the United States, under the safeguards the law requires. We do not sell your data or share it for advertising.
 
 ## How long we keep it
 
-We keep your backup until you delete it or until your game has not been opened for 24 months. Gameplay statistics and crash reports are kept for up to 24 months. Purchase records are kept for as long as tax and accounting law requires.
+Gameplay statistics and error reports are kept for up to 24 months. Purchase records are kept for as long as tax and accounting law requires.
 
 ## Your choices
 
-- **Delete your data.** Open Settings in the game and tap Delete my data. This removes your street from the phone and from our backup. You can also email us and we will do it for you.
+- **Delete your data.** Open Settings in the game and tap Delete my data. This removes your street and settings from the phone and gives the game a new random ID, so nothing collected afterwards is connected to what came before. To have the statistics and error reports already collected from your game deleted as well, email us before you do this, because we need the old ID to find them.
 - **See or correct your data, or object to how we use it.** Email us. We reply within 30 days. Depending on where you live, you also have the right to complain to your data protection authority. In the UK that is the Information Commissioner's Office.
 - **Notifications.** They are off until you turn them on, and you can turn them off in Settings at any time.
 
