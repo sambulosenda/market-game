@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
+import { analytics } from '../analytics';
 import { notifier } from '../notify';
 import { gameStore } from '../store';
 
@@ -12,6 +13,7 @@ import { gameStore } from '../store';
  */
 export function useAppLifecycle() {
   useEffect(() => {
+    analytics.start();
     gameStore.getState().resume();
     void notifier.clear();
     let previous = AppState.currentState;

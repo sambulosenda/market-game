@@ -149,12 +149,61 @@ export const strings = {
       notifications: 'A nudge when your goods are ready. Two a day at most, never at night.',
       reduceMotion: 'Fewer moving effects. Buttons still respond to taps.',
     } as Partial<Record<string, string>>,
+    privacy: 'Privacy',
+    terms: 'Terms',
+    support: 'Help',
+    linkFailed: 'That page could not be opened.',
     deleteData: 'Delete my data',
     deleteHint: 'Your game is saved on this device only.',
     deleteTitle: 'Delete everything?',
     deleteBody: 'Your street, coins, gems and settings will be gone for good. This cannot be undone.',
     deleteKeep: 'Keep my street',
     deleteConfirm: 'Delete everything',
+  },
+
+  // The gem shop
+  gemShop: {
+    title: 'Gem shop',
+    subtitle: 'Gems finish timers and add queue slots',
+    loading: 'Opening the shop…',
+    unreachable: 'The shop cannot be reached right now. Check your connection and try again.',
+    bundle: 'Starter bundle',
+    pack: 'Gems',
+    once: 'One per player',
+    owned: 'Owned',
+    thanks: 'Thank you! Your purchase has been added.',
+    failed: 'The purchase did not go through. You have not been charged.',
+    note: 'Everything in the game can be earned by playing. Purchases only save time.',
+    restore: 'Restore purchases',
+    restored: 'Your purchases have been restored.',
+    nothingToRestore: 'There was nothing to restore.',
+    restoreFailed: 'Purchases could not be restored. Try again later.',
+  },
+
+  // The album of goods and customers
+  album: {
+    button: 'Album',
+    title: 'Album',
+    found: (found: number, total: number) => `${found} of ${total} found`,
+    hint: 'Make a good to add it. Tap a customer on the street to add them. Finish a set for gems.',
+    customers: 'Customers',
+    customer: (n: number) => `Customer ${n}`,
+    unknown: '???',
+    claim: 'Claim',
+    claimed: 'Claimed',
+    newCustomer: 'A new customer joined your album.',
+  },
+
+  // Shop mastery: stars a good earns for being made
+  mastery: {
+    hint: (percent: number) => `Each star a good earns makes it ${percent}% quicker to make.`,
+    count: (made: number, nextAt: number) => `${made}/${nextAt}`,
+    earned: (good: string, stars: number, percent: number) =>
+      `${good} earned ${stars === 1 ? 'its first star' : `star ${stars}`}. Now ${percent}% quicker to make.`,
+    a11y: (m: { made: number; stars: number; maxStars: number; nextAt: number | null }) =>
+      m.nextAt === null
+        ? `All ${m.maxStars} stars earned`
+        : `${m.stars} of ${m.maxStars} stars, ${m.made} of ${m.nextAt} made for the next`,
   },
 
   // Notifications sent while the player is away
@@ -177,6 +226,7 @@ export const strings = {
     nothing_baking: 'Nothing is being made right now.',
     missing_goods: 'You do not have all the goods yet.',
     goal_not_done: 'That goal is not finished yet.',
+    set_not_complete: 'That set is not finished yet.',
     already_claimed: 'You have already claimed that.',
     level_too_low: 'You need a higher level for that.',
     recipe_locked: 'That recipe is still locked.',
@@ -186,6 +236,12 @@ export const strings = {
   a11y: {
     street: 'The street. Swipe sideways to look around.',
     settingsButton: 'Settings',
+    gemShopButton: (gems: number) => `${gems} ${plural(gems, 'gem', 'gems')}. Open the gem shop`,
+    buyProduct: (name: string, gems: number, coins: number, price: string) =>
+      `Buy ${name}: ${[gems > 0 ? `${gems} gems` : '', coins > 0 ? `${coins} coins` : ''].filter(Boolean).join(' and ')}, for ${price}`,
+    albumButton: (waiting: number) =>
+      waiting > 0 ? `Album, ${waiting} ${plural(waiting, 'reward', 'rewards')} to claim` : 'Album',
+    albumItem: (name: string, found: boolean) => (found ? `${name}, found` : `${name}, not found yet`),
     dailyButton: (waiting: number) =>
       waiting > 0 ? `Daily goals, ${waiting} ${plural(waiting, 'reward', 'rewards')} to claim` : 'Daily goals',
     dailyGoal: (label: string, progress: number, target: number) => `${label}, ${progress} of ${target}`,

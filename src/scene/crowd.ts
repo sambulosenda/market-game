@@ -12,6 +12,7 @@ import { LOT_WIDTH, lotX, SHOP_BASE_Y } from './layout';
 export const MAX_CUSTOMERS = 6;
 /** How many can stand in line at one shop. */
 export const QUEUE_SLOTS = 3;
+/** One for each customer in the art, and in `economy.collections.customerLooks`. A test keeps them in step. */
 export const CUSTOMER_LOOKS = 8;
 /** Where a customer's feet are: on the pavement, in front of the shops. */
 export const CUSTOMER_BASE_Y = SHOP_BASE_Y + 40;

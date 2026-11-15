@@ -129,6 +129,40 @@ export const economySchema = z.strictObject({
     maxPerDay: z.number().int().min(0).max(2),
     minGapMinutes: z.number().int().nonnegative(),
   }),
+  /**
+   * Shop mastery. A good earns a star each time the number of it ever made reaches the next
+   * entry of `starsAt`, and each star makes that good this many percent quicker to make.
+   */
+  mastery: z
+    .strictObject({
+      starsAt: z.array(z.number().int().positive()).min(1).max(5),
+      speedPercentPerStar: z.number().min(0).max(10),
+    })
+    .refine((m) => m.starsAt.every((n, i) => i === 0 || n > m.starsAt[i - 1]), {
+      message: 'starsAt must go up',
+      path: ['starsAt'],
+    }),
+  /** The album: gems for finding every good of a shop, and for meeting every customer who walks the street. */
+  collections: z.strictObject({
+    goodsSetGems: z.number().int().nonnegative(),
+    /** How many different customers there are. It must match the customer art. */
+    customerLooks: z.number().int().min(1),
+    customerSetGems: z.number().int().nonnegative(),
+  }),
+  /**
+   * What each app store product gives. The ids must match the products set up in the stores, and the
+   * prices live there, not here. A `once` product can be bought one time and is given back on restore.
+   */
+  products: z
+    .array(
+      z.strictObject({
+        id: z.string().min(1),
+        gems: z.number().int().nonnegative(),
+        coins: z.number().int().nonnegative(),
+        once: z.boolean(),
+      }),
+    )
+    .refine((list) => new Set(list.map((p) => p.id)).size === list.length, { message: 'product ids must be unique' }),
   gems: z.strictObject({
     /** Finishing a baking batch costs one gem for each of these minutes left, rounded up. */
     skipMinutesPerGem: z.number().positive(),

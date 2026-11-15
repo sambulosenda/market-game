@@ -1,9 +1,11 @@
 export { Amount, type AmountKind, CurrencyIcon } from './Amount';
 export { Button } from './Button';
 export { Panel, Well } from './Panel';
+export { PillButton } from './PillButton';
 export { Popup } from './Popup';
 export { ProgressBar } from './ProgressBar';
 export { Sheet } from './Sheet';
+export { Stars } from './Stars';
 export { Toasts } from './Toasts';
 export { Txt } from './Txt';
 export { ToggleRow } from './ToggleRow';

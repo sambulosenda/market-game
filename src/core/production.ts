@@ -2,6 +2,7 @@ import type { Content, ShopLevel } from '../content/schema';
 import { batchSpeedMultiplier } from './bonuses';
 import { effectiveNow } from './clock';
 import { recordDaily } from './daily';
+import { goodStars, masterySpeedMultiplier } from './mastery';
 import { recipeAvailable } from './orders';
 import { pantrySpace } from './pantry';
 import type { ActionResult, Batch, GameEvent, GameState, ShopState } from './types';
@@ -24,9 +25,16 @@ export function shopQueueSize(content: Content, shopId: string, shop: ShopState)
   return shopLevelConfig(content, shopId, shop).queueSize + (shop.extraSlots ?? 0);
 }
 
-/** How long a batch takes at a shop level. `speed` is the landmark multiplier, 1 with none. */
+/** How long a batch takes at a shop level. `speed` is every other multiplier together, 1 with none. */
 export function recipeDurationMs(content: Content, recipeId: string, level: ShopLevel, speed = 1): number {
   return Math.round(content.recipes[recipeId].durationSec * 1000 * level.durationMultiplier * speed);
+}
+
+/** The landmark and mastery multipliers for a new batch of this recipe. */
+export function recipeSpeedMultiplier(state: GameState, content: Content, recipeId: string): number {
+  return (
+    batchSpeedMultiplier(state, content) * masterySpeedMultiplier(state, content, content.recipes[recipeId].output)
+  );
 }
 
 /** True when the pantry holds every input the recipe needs. */
@@ -67,7 +75,7 @@ export function startBatch(
     id: state.nextBatchId,
     recipe: recipeId,
     startAt: last ? Math.max(t, batchEndsAt(last)) : t,
-    durationMs: recipeDurationMs(content, recipeId, level, batchSpeedMultiplier(state, content)),
+    durationMs: recipeDurationMs(content, recipeId, level, recipeSpeedMultiplier(state, content, recipeId)),
   };
   const next: GameState = {
     ...state,
@@ -110,11 +118,19 @@ export function collect(state: GameState, content: Content, shopId: string, now:
     good,
     qty,
   }));
+  // Each good collected counts towards its mastery stars.
+  const made = { ...state.made };
+  for (const [good, qty] of Object.entries(collected)) made[good] = (made[good] ?? 0) + qty;
+  const after: GameState = { ...state, made };
+  for (const good of Object.keys(collected)) {
+    const stars = goodStars(after, content, good);
+    if (stars > goodStars(state, content, good)) events.push({ type: 'masteryStarEarned', good, stars });
+  }
   const queue = shop.queue.filter((b) => !taken.includes(b));
   return {
     ok: true,
     state: recordDaily(
-      { ...state, clock: t, pantry, shops: { ...state.shops, [shopId]: { ...shop, queue } } },
+      { ...after, clock: t, pantry, shops: { ...state.shops, [shopId]: { ...shop, queue } } },
       'collect_goods',
       taken.length,
     ),

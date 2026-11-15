@@ -210,5 +210,46 @@
     "quietEndHour": 9,
     "maxPerDay": 2,
     "minGapMinutes": 60
-  }
+  },
+  "mastery": {
+    "starsAt": [
+      10,
+      40,
+      120,
+      300,
+      700
+    ],
+    "speedPercentPerStar": 3
+  },
+  "collections": {
+    "goodsSetGems": 5,
+    "customerLooks": 8,
+    "customerSetGems": 10
+  },
+  "products": [
+    {
+      "id": "marketstreet.starter_bundle",
+      "gems": 120,
+      "coins": 1000,
+      "once": true
+    },
+    {
+      "id": "marketstreet.gems_small",
+      "gems": 50,
+      "coins": 0,
+      "once": false
+    },
+    {
+      "id": "marketstreet.gems_medium",
+      "gems": 150,
+      "coins": 0,
+      "once": false
+    },
+    {
+      "id": "marketstreet.gems_large",
+      "gems": 350,
+      "coins": 0,
+      "once": false
+    }
+  ]
 }

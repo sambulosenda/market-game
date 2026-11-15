@@ -1,4 +1,5 @@
 import type { Content } from '../content/schema';
+import { NO_ALBUM, reconcileAlbum } from './collections';
 import { NO_DAILY } from './daily';
 import { refreshOrders } from './orders';
 import { type GameState, type OrderSlot, SAVE_VERSION, type ShopState } from './types';
@@ -26,6 +27,9 @@ export function createInitialState(content: Content, now: number, seed: number =
     orders: { slots: [], nextId: 1 },
     landmarks: {},
     daily: NO_DAILY,
+    made: {},
+    album: NO_ALBUM,
+    purchased: [],
     rng: seed >>> 0,
   };
   return refreshOrders(state, content, now);
@@ -58,6 +62,10 @@ export function reconcile(state: GameState, content: Content): GameState {
   for (const [good, qty] of Object.entries(state.pantry)) {
     if (content.goods[good] && qty > 0) pantry[good] = qty;
   }
+  const made: Record<string, number> = {};
+  for (const [good, count] of Object.entries(state.made)) {
+    if (content.goods[good] && count > 0) made[good] = count;
+  }
   const landmarks: GameState['landmarks'] = {};
   for (const [id, landmark] of Object.entries(state.landmarks)) {
     const config = content.landmarks[id];
@@ -78,6 +86,10 @@ export function reconcile(state: GameState, content: Content): GameState {
     ...state,
     shops,
     pantry,
+    made,
+    album: reconcileAlbum(state, content),
+    // A product the content no longer has stays recorded, so it is never given twice if it returns.
+    purchased: [...new Set(state.purchased)],
     daily,
     pantryLevel: clamp(state.pantryLevel, 1, content.economy.pantry.levels.length),
     landmarks,

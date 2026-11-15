@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
+import { analytics } from '../analytics';
 import { notifier } from '../notify';
+import { shop } from '../purchases';
 import { deleteAllData, settingsStore, useSettings } from '../store';
 import type { SettingKey } from '../store/settings';
 import { haptics } from './haptics';
@@ -9,6 +11,14 @@ import { Button, Popup, Sheet, ToggleRow, Txt, Well } from './kit';
 import { strings } from './strings';
 import { colors, space } from './theme';
 import { closeSheet, toast } from './uiStore';
+
+/** The pages the store listings point to as well. */
+const SITE = 'https://sambulosenda.github.io/market-game';
+const links = [
+  { label: strings.settings.privacy, url: `${SITE}/privacy/` },
+  { label: strings.settings.terms, url: `${SITE}/terms/` },
+  { label: strings.settings.support, url: `${SITE}/support/` },
+];
 
 const toggles: SettingKey[] = ['music', 'sound', 'haptics', 'notifications', 'reduceMotion'];
 
@@ -45,6 +55,39 @@ export function SettingsSheet() {
             />
           ))}
         </Well>
+        {shop.available && (
+          <Button
+            small
+            kind="secondary"
+            label={strings.gemShop.restore}
+            onPress={() =>
+              void shop
+                .restore()
+                .then((restored) =>
+                  toast(
+                    restored === null
+                      ? strings.gemShop.restoreFailed
+                      : restored.length > 0
+                        ? strings.gemShop.restored
+                        : strings.gemShop.nothingToRestore,
+                  ),
+                )
+            }
+          />
+        )}
+        <View style={styles.links}>
+          {links.map((link) => (
+            <Button
+              key={link.url}
+              small
+              kind="secondary"
+              style={styles.link}
+              label={link.label}
+              accessibilityRole="link"
+              onPress={() => void Linking.openURL(link.url).catch(() => toast(strings.settings.linkFailed))}
+            />
+          ))}
+        </View>
         <View style={styles.danger}>
           <Txt variant="small" soft>
             {strings.settings.deleteHint}
@@ -65,6 +108,8 @@ export function SettingsSheet() {
                 haptic={false}
                 onPress={() => {
                   deleteAllData();
+                  // The new game reports under a new anonymous id.
+                  analytics.reset();
                   haptics.warning();
                   setConfirming(false);
                   closeSheet();
@@ -82,6 +127,8 @@ export function SettingsSheet() {
 
 const styles = StyleSheet.create({
   group: { paddingHorizontal: space.md, paddingVertical: space.xs },
+  links: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  link: { flexGrow: 1 },
   danger: { gap: space.sm, borderTopWidth: 1, borderColor: colors.panelEdge, paddingTop: space.md },
   centre: { textAlign: 'center' },
 });

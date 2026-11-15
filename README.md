@@ -2,7 +2,7 @@
 
 A cozy idle mobile game: start with one bread stall on a quiet town square and grow it into a full street of shops. Expo + React Native + TypeScript, iOS and Android, no game engine.
 
-This build has the whole of version 1's content: 5 shops with 8 goods each, 3 landmarks to restore and 25 levels, with the order board, the pantry and shop upgrades. Make goods, fill orders for coins and XP, and spend the coins on growing the street.
+This build has the whole of version 1's content: 5 shops with 8 goods each, 3 landmarks to restore and 25 levels, with the order board, the pantry and shop upgrades, plus daily goals, walking customers who tip, and shop mastery (goods earn stars for being made, and each star makes them quicker to make) and an album of goods and customers with a gem reward for each finished set. Make goods, fill orders for coins and XP, and spend the coins on growing the street.
 
 ## Run it on an iPhone
 
@@ -46,6 +46,8 @@ Every pull request runs the type check, the lint and the tests in GitHub Actions
 | `src/store` | A zustand store around the core that saves to MMKV after every change. |
 | `src/scene` | The Skia street: scrolling, parallax, lots and in-scene indicators. |
 | `src/sim` | The balance simulator and the pacing targets. Not used by the app. |
+| `src/analytics` | Game events mapped to analytics events (`events.ts`, pure) and sent to PostHog when `EXPO_PUBLIC_POSTHOG_KEY` is set. With no key nothing is sent. See `.env.example`. |
+| `src/purchases` | The gem shop: `shop.ts` (list, buy, restore; pure and tested) and the RevenueCat backend, used when `EXPO_PUBLIC_REVENUECAT_IOS_KEY` or `_ANDROID_KEY` is set. With no key the shop is closed. What each product gives is in `economy.json`. |
 | `src/notify` | Local notifications: schedules what `src/core/notifications.ts` plans when the app goes to the background, and clears it on return. |
 | `src/art` | `manifest.ts` (generated) lists every image with its size in points; `index.ts` looks art up by good or shop id. |
 | `src/ui` | React Native views on top of the canvas: the top bar, the order board, sheets and pop-ups, plus `strings.ts` for all player-facing text. |

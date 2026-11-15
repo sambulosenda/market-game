@@ -12,6 +12,8 @@ export type SheetState =
   | { kind: 'pantry' }
   | { kind: 'settings' }
   | { kind: 'daily' }
+  | { kind: 'album' }
+  | { kind: 'gemShop' }
   | null;
 
 export type LevelUp = {

@@ -6,6 +6,7 @@ import {
   buyQueueSlot,
   buyShop,
   claimCalendarGift,
+  claimCollectionSet,
   claimDailyGoal,
   collect,
   createInitialState,
@@ -14,10 +15,12 @@ import {
   fillOrder,
   type GameEvent,
   type GameState,
+  grantPurchase,
   pause,
   refreshDaily,
   refreshOrders,
   restoreLandmark,
+  restorePurchases,
   resume,
   serializeSave,
   skipOrder,
@@ -62,7 +65,13 @@ export type GameStore = {
   /** Spends gems on one more queue slot for the shop. */
   buyQueueSlot(shopId: string): FailReason | null;
   /** Takes a walking customer's tip. */
-  tipCustomer(): void;
+  tipCustomer(look?: number): void;
+  /** Gives the player an app store product that was paid for. */
+  grantPurchase(productId: string): FailReason | null;
+  /** Gives back once-only products the store account owns. Returns the ones given. */
+  restorePurchases(ownedProductIds: string[]): string[];
+  /** Takes the gems for a finished collection set. */
+  claimCollectionSet(setId: string): FailReason | null;
   /** Refills order slots whose wait is over and sets new goals after midnight. Cheap, so screens call it as time passes. */
   refreshOrders(): void;
   /** Call when the app comes to the foreground (and once at launch). */
@@ -162,7 +171,17 @@ export function createGameStore({
       },
       skipTimer: (shopId) => apply(skipTimer(get().game, content, shopId, now())),
       buyQueueSlot: (shopId) => apply(buyQueueSlot(get().game, content, shopId, now())),
-      tipCustomer: () => void apply(tipCustomer(get().game, content, now())),
+      tipCustomer: (look) => void apply(tipCustomer(get().game, content, now(), look)),
+      grantPurchase: (productId) => apply(grantPurchase(get().game, content, productId, now())),
+      restorePurchases: (owned) => {
+        const { state, restored } = restorePurchases(get().game, content, owned, now());
+        if (restored.length > 0) {
+          save(state);
+          set({ game: state });
+        }
+        return restored;
+      },
+      claimCollectionSet: (setId) => apply(claimCollectionSet(get().game, content, setId, now())),
       refreshOrders: () => {
         const state = tick(get().game, now());
         if (state === get().game) return;

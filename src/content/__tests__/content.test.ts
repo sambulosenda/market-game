@@ -199,6 +199,13 @@ describe('content validation', () => {
     ]);
   });
 
+  it('rejects mastery star thresholds that do not go up', () => {
+    const mastery = { ...economy.mastery, starsAt: [10, 40, 40] };
+    expect(problemsFor({ economy: { ...economy, mastery } })).toEqual([
+      'economy.json: mastery.starsAt: starsAt must go up',
+    ]);
+  });
+
   it('throws a readable message listing every problem', () => {
     expect(() => loadContent({ ...raw, street: { lotCount: 0 } })).toThrow(
       /Content config is invalid:\n {2}- street\.json: lotCount: /,
