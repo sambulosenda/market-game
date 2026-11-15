@@ -17,9 +17,7 @@ describe('startBatch', () => {
     const { state, events } = ok(startBatch(fresh(), testContent, 'bakery', 'loaf', T0));
     expect(state.shops.bakery.queue).toEqual([{ id: 1, recipe: 'loaf', startAt: T0, durationMs: 60 * SEC }]);
     expect(state.nextBatchId).toBe(2);
-    expect(events).toEqual([
-      { type: 'batchStarted', shop: 'bakery', recipe: 'loaf', batchId: 1, endsAt: T0 + MIN },
-    ]);
+    expect(events).toEqual([{ type: 'batchStarted', shop: 'bakery', recipe: 'loaf', batchId: 1, endsAt: T0 + MIN }]);
   });
 
   it('runs queued batches one after another', () => {
@@ -104,5 +102,16 @@ describe('collect', () => {
     expect(state.pantry).toEqual({ loaf: 2 });
     expect(state.shops.bakery.queue).toEqual([]);
     expect(events).toEqual([{ type: 'batchCollected', shop: 'bakery', good: 'loaf', qty: 2 }]);
+  });
+});
+
+describe('the first batch of a new game', () => {
+  const quick = { ...testContent, economy: { ...testContent.economy, firstBatchSec: 5 } };
+
+  it('is ready almost at once, and the batches after it take their usual time', () => {
+    let s = ok(startBatch(createInitialState(quick, T0), quick, 'bakery', 'loaf', T0)).state;
+    expect(s.shops.bakery.queue[0].durationMs).toBe(5 * SEC);
+    s = ok(startBatch(s, quick, 'bakery', 'loaf', T0)).state;
+    expect(s.shops.bakery.queue[1]).toMatchObject({ startAt: T0 + 5 * SEC, durationMs: 60 * SEC });
   });
 });

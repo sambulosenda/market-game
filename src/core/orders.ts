@@ -96,6 +96,24 @@ function generateOrder(state: GameState, content: Content): { order: Order; rng:
 }
 
 /**
+ * The orders a new game opens with: the content's fixed opening hand, less any order the player could not
+ * make yet or has no slot for. They are the same for everyone, so the first minute is varied and easy.
+ */
+export function openingOrders(state: GameState, content: Content): GameState['orders'] {
+  const pool = new Set(orderableGoods(state, content));
+  const slots: OrderSlot[] = [];
+  let nextId = state.orders.nextId;
+  for (const items of content.economy.orders.opening) {
+    if (slots.length >= orderSlotCount(state, content)) break;
+    if (!items.every((item) => pool.has(item.good))) continue;
+    let xp = 0;
+    for (const item of items) xp += item.qty * content.goods[item.good].xp;
+    slots.push({ order: { id: nextId++, items, coins: baseOrderCoins(content, items), xp } });
+  }
+  return { slots, nextId };
+}
+
+/**
  * Fills every slot whose wait is over and adds slots the player has earned.
  * Returns the same state object when nothing changed, so it is cheap to call
  * often.

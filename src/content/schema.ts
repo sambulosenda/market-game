@@ -104,6 +104,8 @@ export const DAILY_GOAL_KINDS = ['fill_orders', 'collect_goods', 'earn_coins', '
 export const economySchema = z.strictObject({
   startingCoins: z.number().int().nonnegative(),
   startingGems: z.number().int().nonnegative(),
+  /** The longest a new game's very first batch takes, so the first thing a player makes is ready almost at once. */
+  firstBatchSec: z.number().int().positive(),
   pantry: z.strictObject({
     /** Capacity at each pantry level, and the coins to reach it. Level 1 is free. */
     levels: z
@@ -121,6 +123,13 @@ export const economySchema = z.strictObject({
     kinds: byLevel({ weights: z.array(z.number().nonnegative()).length(MAX_ORDER_KINDS) }),
     /** The most of one good an order asks for, from a player level up. */
     maxQty: byLevel({ max: z.number().int().positive() }),
+    /** The orders a new game opens with, in slot order. Slots beyond these are filled at random as usual. */
+    opening: z.array(
+      z
+        .array(z.strictObject({ good: z.string(), qty: z.number().int().positive() }))
+        .min(1)
+        .max(MAX_ORDER_KINDS),
+    ),
   }),
   /** Local notifications: none between the quiet hours (local time), a cap per day, and a gap between two. */
   notifications: z.strictObject({

@@ -83,6 +83,8 @@ export const testContent = loadContent({
   economy: {
     startingCoins: 20,
     startingGems: 5,
+    // Longer than any fixture recipe, so it changes nothing unless a test sets it.
+    firstBatchSec: 3600,
     pantry: {
       levels: [
         { capacity: 10, cost: 0 },
@@ -90,6 +92,7 @@ export const testContent = loadContent({
       ],
     },
     orders: {
+      opening: [],
       skipCooldownSec: 300,
       coinMultiplier: 1.5,
       extraKindBonus: 0.2,
