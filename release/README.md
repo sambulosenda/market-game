@@ -4,8 +4,8 @@ What a store submission needs that is not code.
 
 | File | What it is |
 | --- | --- |
-| `../store.config.json` | The App Store listing: name, subtitle, description, keywords, categories, age rating answers and review notes. `eas metadata:push` sends it to App Store Connect. |
-| `store-listing.md` | The Google Play listing text, the in-app products to create in both stores, and why the listing says what it says. |
+| `../store.config.json` | The App Store listing: name, subtitle, description, keywords, categories and age rating answers. `eas metadata:push` sends it to App Store Connect. |
+| `store-listing.md` | The Google Play listing text, the in-app products to create in both stores, the App Review notes, and why the listing says what it says. |
 | `privacy-labels.md` | The answers for Apple's App Privacy section, Google's Data safety form, the age rating forms and export compliance. |
 | `screenshots.md` | Which screenshots to take, in what order, with captions and sizes. |
 | `../docs/` | The public privacy policy, terms and support page, served by GitHub Pages. |

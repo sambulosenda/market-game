@@ -39,6 +39,26 @@ The starter bundle is non-consumable so that Restore purchases can bring it back
 
 Each product needs, in App Store Connect: the display name and description above, a price, and one review screenshot showing the product in the gem shop. The first products must be attached to the version when it is submitted for review, or they stay in "Ready to submit" and purchases fail in the live app.
 
+## App Review information
+
+Entered by hand in App Store Connect, under App Review Information. It is not in `store.config.json`, because that file would then have to hold the contact's name, email address and phone number, and this repository is public.
+
+- Sign-in required: **No**
+- Contact: the account holder's name, email address and phone number
+- Notes:
+
+```text
+Market Street is a single-player idle shop game. It needs no account and no sign-in.
+
+To see the main loop: tap the bread stall, make a loaf, collect it, then open the order board (bottom of the screen) and fill an order. The first minutes are guided by an in-game tutorial.
+
+In-app purchases: gems are bought in the gem shop, opened by tapping the gem counter at the top of the screen. Gems are spent to finish a batch at once or to add a queue slot to a shop. Nothing bought is random; there are no loot boxes. Restore purchases is in Settings (the cog at the top of the screen).
+
+Deleting data: Settings > Delete my data removes the saved game and settings from the device and resets the analytics ID. The game stores no saved game on a server.
+
+Notifications are local only, off by default, and asked for only when the player turns them on in Settings. The game has no adverts and does not track users.
+```
+
 ## Claims the build must keep true
 
 The listing says these things. If one stops being true, change the listing first.
