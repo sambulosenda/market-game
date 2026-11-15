@@ -155,6 +155,7 @@ export const strings = {
     linkFailed: 'That page could not be opened.',
     deleteData: 'Delete my data',
     deleteHint: 'Your game is saved on this device only.',
+    playerId: (id: string) => `Player ID: ${id}`,
     deleteTitle: 'Delete everything?',
     deleteBody: 'Your street, coins, gems and settings will be gone for good. This cannot be undone.',
     deleteKeep: 'Keep my street',

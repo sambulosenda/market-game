@@ -26,6 +26,8 @@ const toggles: SettingKey[] = ['music', 'sound', 'haptics', 'notifications', 're
 export function SettingsSheet() {
   const settings = useSettings((s) => s);
   const [confirming, setConfirming] = useState(false);
+  // Read on each render: deleting the data replaces it.
+  const playerId = analytics.playerId();
 
   const change = (key: SettingKey, value: boolean) => {
     settingsStore.getState().set(key, value);
@@ -93,6 +95,12 @@ export function SettingsSheet() {
             {strings.settings.deleteHint}
           </Txt>
           <Button kind="secondary" label={strings.settings.deleteData} onPress={() => setConfirming(true)} />
+          {playerId && (
+            // Selectable, so a long press copies it into an email to support.
+            <Txt variant="small" soft selectable>
+              {strings.settings.playerId(playerId)}
+            </Txt>
+          )}
         </View>
       </Sheet>
       {confirming && (

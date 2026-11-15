@@ -76,6 +76,18 @@ export const analytics = {
     client?.captureException(error, { where });
   },
 
+  /**
+   * The anonymous id events are sent under, or null when nothing is sent. Shown in Settings, so a player
+   * can quote it when they ask for what was collected to be deleted.
+   */
+  playerId(): string | null {
+    try {
+      return client?.getDistinctId() || null;
+    } catch {
+      return null;
+    }
+  },
+
   /** A new anonymous id, with nothing linking it to the old one. Called when the player deletes their data. */
   reset() {
     client?.reset();
