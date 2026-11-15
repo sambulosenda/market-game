@@ -129,9 +129,10 @@ export function Street() {
     runOnJS: true,
     onActivate: (e) => {
       // A customer stands in front of the shops, so a tap on one is theirs.
-      if (crowd.tipAt(e.x + scrollX.value, e.y)) {
+      const tipped = crowd.tipAt(e.x + scrollX.value, e.y);
+      if (tipped) {
         haptics.light();
-        gameStore.getState().tipCustomer();
+        gameStore.getState().tipCustomer(tipped.look);
         return;
       }
       const lot = lotAt(e.x + scrollX.value, e.y, lotCount);

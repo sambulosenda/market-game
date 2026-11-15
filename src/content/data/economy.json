@@ -220,5 +220,10 @@
       700
     ],
     "speedPercentPerStar": 3
+  },
+  "collections": {
+    "goodsSetGems": 5,
+    "customerLooks": 8,
+    "customerSetGems": 10
   }
 }

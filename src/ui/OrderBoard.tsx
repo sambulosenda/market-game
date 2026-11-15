@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { content } from '../content';
 import { canFillOrder, type Order, orderCoins } from '../core';
 import { gameStore, useGame } from '../store';
+import { AlbumButton } from './AlbumSheet';
 import { Bouncy } from './Bouncy';
 import { DailyButton } from './DailyButton';
 import { report } from './feedback';
@@ -28,6 +29,7 @@ export function OrderBoard() {
           {strings.orders}
         </Txt>
         <View style={styles.grow} />
+        <AlbumButton />
         <DailyButton />
         <Bouncy
           accessibilityRole="button"

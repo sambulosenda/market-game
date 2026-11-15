@@ -7,6 +7,7 @@ import { CollectFx } from '@/ui/fx/CollectFx';
 import { RewardFx } from '@/ui/fx/RewardFx';
 import { Hud } from '@/ui/Hud';
 import { Toasts } from '@/ui/kit';
+import { AlbumSheet } from '@/ui/AlbumSheet';
 import { DailySheet } from '@/ui/DailySheet';
 import { LandmarkSheet } from '@/ui/LandmarkSheet';
 import { LevelUpPopup } from '@/ui/LevelUpPopup';
@@ -43,6 +44,7 @@ export default function StreetScreen() {
       {sheet?.kind === 'pantry' && <PantrySheet />}
       {sheet?.kind === 'settings' && <SettingsSheet />}
       {sheet?.kind === 'daily' && <DailySheet />}
+      {sheet?.kind === 'album' && <AlbumSheet />}
       <TutorialPointer />
       <CollectFx />
       <RewardFx />

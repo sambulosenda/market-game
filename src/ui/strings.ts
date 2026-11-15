@@ -157,6 +157,20 @@ export const strings = {
     deleteConfirm: 'Delete everything',
   },
 
+  // The album of goods and customers
+  album: {
+    button: 'Album',
+    title: 'Album',
+    found: (found: number, total: number) => `${found} of ${total} found`,
+    hint: 'Make a good to add it. Tap a customer on the street to add them. Finish a set for gems.',
+    customers: 'Customers',
+    customer: (n: number) => `Customer ${n}`,
+    unknown: '???',
+    claim: 'Claim',
+    claimed: 'Claimed',
+    newCustomer: 'A new customer joined your album.',
+  },
+
   // Shop mastery: stars a good earns for being made
   mastery: {
     hint: (percent: number) => `Each star a good earns makes it ${percent}% quicker to make.`,
@@ -189,6 +203,7 @@ export const strings = {
     nothing_baking: 'Nothing is being made right now.',
     missing_goods: 'You do not have all the goods yet.',
     goal_not_done: 'That goal is not finished yet.',
+    set_not_complete: 'That set is not finished yet.',
     already_claimed: 'You have already claimed that.',
     level_too_low: 'You need a higher level for that.',
     recipe_locked: 'That recipe is still locked.',
@@ -198,6 +213,9 @@ export const strings = {
   a11y: {
     street: 'The street. Swipe sideways to look around.',
     settingsButton: 'Settings',
+    albumButton: (waiting: number) =>
+      waiting > 0 ? `Album, ${waiting} ${plural(waiting, 'reward', 'rewards')} to claim` : 'Album',
+    albumItem: (name: string, found: boolean) => (found ? `${name}, found` : `${name}, not found yet`),
     dailyButton: (waiting: number) =>
       waiting > 0 ? `Daily goals, ${waiting} ${plural(waiting, 'reward', 'rewards')} to claim` : 'Daily goals',
     dailyGoal: (label: string, progress: number, target: number) => `${label}, ${progress} of ${target}`,

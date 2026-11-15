@@ -1,4 +1,5 @@
 import type { Content } from '../content/schema';
+import { NO_ALBUM, reconcileAlbum } from './collections';
 import { NO_DAILY } from './daily';
 import { refreshOrders } from './orders';
 import { type GameState, type OrderSlot, SAVE_VERSION, type ShopState } from './types';
@@ -27,6 +28,7 @@ export function createInitialState(content: Content, now: number, seed: number =
     landmarks: {},
     daily: NO_DAILY,
     made: {},
+    album: NO_ALBUM,
     rng: seed >>> 0,
   };
   return refreshOrders(state, content, now);
@@ -84,6 +86,7 @@ export function reconcile(state: GameState, content: Content): GameState {
     shops,
     pantry,
     made,
+    album: reconcileAlbum(state, content),
     daily,
     pantryLevel: clamp(state.pantryLevel, 1, content.economy.pantry.levels.length),
     landmarks,

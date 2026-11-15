@@ -25,6 +25,7 @@ export function useGameFeedback() {
             toast(strings.mastery.earned(content.goods[event.good].name, event.stars, percent));
             haptics.success();
           }
+          if (event.type === 'customerTipped' && event.newLook !== undefined) toast(strings.album.newCustomer);
           // The new shop appears on the street; show it.
           if (event.type === 'shopBought') closeSheet();
         }

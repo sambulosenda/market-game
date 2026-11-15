@@ -105,6 +105,7 @@ export const testContent = loadContent({
     notifications: { quietStartHour: 21, quietEndHour: 9, maxPerDay: 2, minGapMinutes: 60 },
     gems: { skipMinutesPerGem: 2, extraQueueSlotCosts: [3, 6] },
     tips: { base: 1, perLevel: 0.5 },
+    collections: { goodsSetGems: 4, customerLooks: 3, customerSetGems: 6 },
     mastery: { starsAt: [3, 6, 10], speedPercentPerStar: 10 },
     daily: {
       goals: [
