@@ -57,5 +57,8 @@ export const shop = createShop({
   grant: (productId) => gameStore.getState().grantPurchase(productId) === null,
   restore: (owned) => gameStore.getState().restorePurchases(owned),
   onPurchase: (listing) => analytics.capture('purchase_made', { product: listing.id, price: listing.price }),
-  onError: (error) => console.warn('[shop]', error),
+  onError: (error) => {
+    console.warn('[shop]', error);
+    analytics.error(error, 'shop');
+  },
 });
