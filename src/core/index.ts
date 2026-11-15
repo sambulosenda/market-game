@@ -11,6 +11,7 @@ export * from './offline';
 export * from './orders';
 export * from './pantry';
 export * from './production';
+export * from './purchases';
 export * from './rng';
 export * from './save';
 export * from './shops';

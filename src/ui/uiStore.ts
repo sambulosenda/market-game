@@ -13,6 +13,7 @@ export type SheetState =
   | { kind: 'settings' }
   | { kind: 'daily' }
   | { kind: 'album' }
+  | { kind: 'gemShop' }
   | null;
 
 export type LevelUp = {

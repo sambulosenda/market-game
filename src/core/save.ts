@@ -47,6 +47,11 @@ export const MIGRATIONS: Migration[] = [
     from: 4,
     migrate: (save) => ({ ...save, album: NO_ALBUM }),
   },
+  {
+    // Version 6 added the record of once-only purchases.
+    from: 5,
+    migrate: (save) => ({ ...save, purchased: [] }),
+  },
 ];
 
 const batchSchema = z.object({
@@ -99,6 +104,7 @@ const saveSchema = z.object({
           'skip_timer',
           'queue_slot',
           'collection_set',
+          'purchase',
         ]),
         balance: z.number().int(),
       }),
@@ -126,6 +132,7 @@ const saveSchema = z.object({
     calendar: z.object({ claimed: z.number().int().nonnegative(), lastDay: z.number().int().nullable() }),
   }),
   made: z.record(z.string(), z.number().int().nonnegative()),
+  purchased: z.array(z.string()),
   album: z.object({ customers: z.array(z.number().int().positive()), claimed: z.array(z.string()) }),
   rng: z.number().int().nonnegative(),
 });

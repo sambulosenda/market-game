@@ -11,6 +11,7 @@ import { useStore } from 'zustand';
 
 import { ui } from '../art';
 import { content } from '../content';
+import { shop } from '../purchases';
 import { levelProgress, pantryCapacity, pantryCount, xpForNextLevel } from '../core';
 import { useGame } from '../store';
 import { Bouncy } from './Bouncy';
@@ -85,9 +86,20 @@ export function Hud() {
           <Amount kind="coins" value={coins} />
         </View>
       </Animated.View>
-      <View style={styles.pill}>
-        <Amount kind="gems" value={gems} />
-      </View>
+      {shop.available ? (
+        <Bouncy
+          accessibilityRole="button"
+          accessibilityLabel={strings.a11y.gemShopButton(gems)}
+          onPress={() => openSheet({ kind: 'gemShop' })}
+          style={styles.pill}
+        >
+          <Amount kind="gems" value={gems} />
+        </Bouncy>
+      ) : (
+        <View style={styles.pill}>
+          <Amount kind="gems" value={gems} />
+        </View>
+      )}
 
       <Bouncy
         accessibilityRole="button"

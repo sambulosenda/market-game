@@ -225,5 +225,31 @@
     "goodsSetGems": 5,
     "customerLooks": 8,
     "customerSetGems": 10
-  }
+  },
+  "products": [
+    {
+      "id": "marketstreet.starter_bundle",
+      "gems": 120,
+      "coins": 1000,
+      "once": true
+    },
+    {
+      "id": "marketstreet.gems_small",
+      "gems": 50,
+      "coins": 0,
+      "once": false
+    },
+    {
+      "id": "marketstreet.gems_medium",
+      "gems": 150,
+      "coins": 0,
+      "once": false
+    },
+    {
+      "id": "marketstreet.gems_large",
+      "gems": 350,
+      "coins": 0,
+      "once": false
+    }
+  ]
 }

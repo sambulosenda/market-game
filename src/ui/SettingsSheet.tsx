@@ -3,6 +3,7 @@ import { Linking, StyleSheet, View } from 'react-native';
 
 import { analytics } from '../analytics';
 import { notifier } from '../notify';
+import { shop } from '../purchases';
 import { deleteAllData, settingsStore, useSettings } from '../store';
 import type { SettingKey } from '../store/settings';
 import { haptics } from './haptics';
@@ -54,6 +55,26 @@ export function SettingsSheet() {
             />
           ))}
         </Well>
+        {shop.available && (
+          <Button
+            small
+            kind="secondary"
+            label={strings.gemShop.restore}
+            onPress={() =>
+              void shop
+                .restore()
+                .then((restored) =>
+                  toast(
+                    restored === null
+                      ? strings.gemShop.restoreFailed
+                      : restored.length > 0
+                        ? strings.gemShop.restored
+                        : strings.gemShop.nothingToRestore,
+                  ),
+                )
+            }
+          />
+        )}
         <View style={styles.links}>
           {links.map((link) => (
             <Button
