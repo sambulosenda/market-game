@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { analytics } from '../analytics';
 import { notifier } from '../notify';
 import { deleteAllData, settingsStore, useSettings } from '../store';
 import type { SettingKey } from '../store/settings';
@@ -65,6 +66,8 @@ export function SettingsSheet() {
                 haptic={false}
                 onPress={() => {
                   deleteAllData();
+                  // The new game reports under a new anonymous id.
+                  analytics.reset();
                   haptics.warning();
                   setConfirming(false);
                   closeSheet();
