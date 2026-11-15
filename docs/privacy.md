@@ -42,7 +42,7 @@ Gameplay statistics and error reports are kept for up to 24 months. Purchase rec
 
 ## Your choices
 
-- **Delete your data.** Open Settings in the game and tap Delete my data. This removes your street and settings from the phone and gives the game a new random ID, so nothing collected afterwards is connected to what came before. To have the statistics and error reports already collected from your game deleted as well, email us before you do this, because we need the old ID to find them.
+- **Delete your data.** Open Settings in the game and tap Delete my data. This removes your street and settings from the phone and gives the game a new random ID, so nothing collected afterwards is connected to what came before. To have the statistics and error reports already collected from your game deleted as well, email us the Player ID shown in Settings before you do this, because we need the old ID to find them.
 - **See or correct your data, or object to how we use it.** Email us. We reply within 30 days. Depending on where you live, you also have the right to complain to your data protection authority. In the UK that is the Information Commissioner's Office.
 - **Notifications.** They are off until you turn them on, and you can turn them off in Settings at any time.
 

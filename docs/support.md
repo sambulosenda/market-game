@@ -23,7 +23,7 @@ Your street is saved on your phone, not on our servers. It is part of your phone
 Open Settings in the game and switch Notifications off. The game sends at most two a day and none at night.
 
 **How do I delete my data?**
-Open Settings in the game and tap Delete my data. This removes your street and settings from the phone. To have the gameplay statistics already collected from your game deleted too, email us before you do this.
+Open Settings in the game and tap Delete my data. This removes your street and settings from the phone. To have the gameplay statistics already collected from your game deleted too, email us the Player ID shown in Settings before you do this.
 
 **I found a bug.**
 Please email us what happened and, if you can, a screenshot.
