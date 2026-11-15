@@ -1,0 +1,11 @@
+# The public pages for Market Street: privacy policy, terms and support.
+# Served by GitHub Pages from this folder (Settings > Pages > main, /docs).
+# The three values below appear on every page. Change them here only.
+title: Market Street
+developer_name: CHANGE-ME
+support_email: CHANGE-ME@example.com
+governing_law: England and Wales
+effective_date: 20 November 2026
+
+permalink: pretty
+markdown: kramdown
